@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Uber Simple Angular2 Demo</title>
+  </head>
+
+  <body>
+    <greeting-app>
+      Loading...
+    </greeting-app>
+
+    <script src="deps/traceur.js"></script>
+    <script src="deps/es6-module-loader-sans-promises.js" type="text/javascript"></script>
+    <script src="deps/zone.js" type="text/javascript"></script>
+    <script src="deps/long-stack-trace-zone.js" type="text/javascript"></script>
+    <script src="deps/system.js" type="text/javascript"></script>
+    <script src="angular2/extension-register.js" type="text/javascript"></script>
+    <script src="angular2/runtime_paths.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      System.import('index').then(function(m) {
+        m.main();
+      }, console.log.bind(console));
+    </script>
+  </body>
+</html>
