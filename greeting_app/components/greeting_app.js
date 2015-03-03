@@ -13,10 +13,12 @@ import {RedDec} from '../directives/red_dec';
 export class GreetingApp {
   greeting: string;
   name: string;
+  btnLabel: string;
 
   constructor(service: GreetingService) {
     this.greeting = service.greeting;
     this.name = 'World';
+    this.btnLabel = 'Toggle greeting';
   }
 
   toggleGreeting() {
