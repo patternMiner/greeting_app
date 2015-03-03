@@ -1,9 +1,14 @@
 <style type="text/css">
-  .greeting, .toggle-greeting {margin: 20px 0 0 20px;}
+  .greeting, .toggle-greeting, .your-name {margin: 20px 0 0 20px;}
 </style>
 
 <div class="greeting">
-  <span [text-content]="greeting"></span>, <span red>World</span>!
+  <span [text-content]="greeting"></span>, <span red>{{name}}</span>!
+</div>
+
+<div class="your-name">
+  <input #yourname type="text" placeholder="Enter your name"
+      (keyup)="changeName(yourname.value)">
 </div>
 
 <div class="toggle-greeting">

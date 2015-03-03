@@ -12,12 +12,18 @@ import {RedDec} from '../directives/red_dec';
 })
 export class GreetingApp {
   greeting: string;
+  name: string;
 
   constructor(service: GreetingService) {
     this.greeting = service.greeting;
+    this.name = 'World';
   }
 
   toggleGreeting() {
     this.greeting = this.greeting == 'Howdy' ? 'Hello' : 'Howdy';
+  }
+
+  changeName(newName: string) {
+    this.name = newName == '' ? 'World' : newName;
   }
 }
