@@ -8,6 +8,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       controlGroupValidator,
       VALID,
       INVALID,
+      AbstractControl,
       Control,
       ControlGroup,
       OptionalControl;
@@ -26,25 +27,19 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
     execute: function() {
       VALID = $__export("VALID", "VALID");
       INVALID = $__export("INVALID", "INVALID");
-      Control = $__export("Control", (function() {
-        var Control = function Control(value) {
-          var validator = arguments[1] !== (void 0) ? arguments[1] : nullValidator;
-          assert.argumentTypes(value, assert.type.any, validator, Function);
-          this._value = value;
+      AbstractControl = $__export("AbstractControl", (function() {
+        var AbstractControl = function AbstractControl() {
+          var validator = arguments[0] !== (void 0) ? arguments[0] : nullValidator;
+          assert.argumentTypes(validator, Function);
           this.validator = validator;
           this._dirty = true;
         };
-        return ($traceurRuntime.createClass)(Control, {
-          updateValue: function(value) {
-            assert.argumentTypes(value, assert.type.any);
-            this._value = value;
-            this._dirty = true;
-            this._updateParent();
-          },
+        return ($traceurRuntime.createClass)(AbstractControl, {
           get active() {
             return assert.returnType((true), assert.type.boolean);
           },
           get value() {
+            this._updateIfNeeded();
             return this._value;
           },
           get status() {
@@ -62,13 +57,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           setParent: function(parent) {
             this._parent = parent;
           },
-          _updateIfNeeded: function() {
-            if (this._dirty) {
-              this._dirty = false;
-              this._errors = this.validator(this);
-              this._status = isPresent(this._errors) ? INVALID : VALID;
-            }
-          },
+          _updateIfNeeded: function() {},
           _updateParent: function() {
             if (isPresent(this._parent)) {
               this._parent._controlChanged();
@@ -76,38 +65,47 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           }
         }, {});
       }()));
+      Object.defineProperty(AbstractControl, "parameters", {get: function() {
+          return [[Function]];
+        }});
+      Control = $__export("Control", (function($__super) {
+        var Control = function Control(value) {
+          var validator = arguments[1] !== (void 0) ? arguments[1] : nullValidator;
+          assert.argumentTypes(value, assert.type.any, validator, Function);
+          $traceurRuntime.superConstructor(Control).call(this, validator);
+          this._value = value;
+        };
+        return ($traceurRuntime.createClass)(Control, {
+          updateValue: function(value) {
+            assert.argumentTypes(value, assert.type.any);
+            this._value = value;
+            this._dirty = true;
+            this._updateParent();
+          },
+          _updateIfNeeded: function() {
+            if (this._dirty) {
+              this._dirty = false;
+              this._errors = this.validator(this);
+              this._status = isPresent(this._errors) ? INVALID : VALID;
+            }
+          }
+        }, {}, $__super);
+      }(AbstractControl)));
       Object.defineProperty(Control, "parameters", {get: function() {
           return [[assert.type.any], [Function]];
         }});
       Object.defineProperty(Control.prototype.updateValue, "parameters", {get: function() {
           return [[assert.type.any]];
         }});
-      ControlGroup = $__export("ControlGroup", (function() {
+      ControlGroup = $__export("ControlGroup", (function($__super) {
         var ControlGroup = function ControlGroup(controls) {
           var validator = arguments[1] !== (void 0) ? arguments[1] : controlGroupValidator;
           assert.argumentTypes(controls, assert.type.any, validator, Function);
+          $traceurRuntime.superConstructor(ControlGroup).call(this, validator);
           this.controls = controls;
-          this.validator = validator;
-          this._dirty = true;
           this._setParentForControls();
         };
         return ($traceurRuntime.createClass)(ControlGroup, {
-          get value() {
-            this._updateIfNeeded();
-            return this._value;
-          },
-          get status() {
-            this._updateIfNeeded();
-            return this._status;
-          },
-          get valid() {
-            this._updateIfNeeded();
-            return this._status === VALID;
-          },
-          get errors() {
-            this._updateIfNeeded();
-            return this._errors;
-          },
           _setParentForControls: function() {
             var $__0 = this;
             StringMapWrapper.forEach(this.controls, (function(control, name) {
@@ -133,9 +131,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           },
           _controlChanged: function() {
             this._dirty = true;
+            this._updateParent();
           }
-        }, {});
-      }()));
+        }, {}, $__super);
+      }(AbstractControl)));
       Object.defineProperty(ControlGroup, "parameters", {get: function() {
           return [[], [Function]];
         }});

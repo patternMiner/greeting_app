@@ -58,7 +58,7 @@ System.register([], function($__export) {
   return {
     setters: [],
     execute: function() {
-      testUtil = require('./test_util');
+      testUtil = require('./e2e_util');
       benchpress = require('benchpress/benchpress');
       module.exports = {
         runClickBenchmark: runClickBenchmark,
@@ -69,6 +69,6 @@ System.register([], function($__export) {
   };
 });
 
-//# sourceMappingURL=angular2/e2e_test/perf_util.map
+//# sourceMappingURL=angular2/src/test_lib/perf_util.map
 
-//# sourceMappingURL=../../angular2/e2e_test/perf_util.js.map
+//# sourceMappingURL=../../../angular2/src/test_lib/perf_util.js.map

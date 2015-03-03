@@ -36,6 +36,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang"], functio
             throw _abstract();
           },
           query: function(selector) {
+            assert.argumentTypes(selector, assert.type.string);
             throw _abstract();
           },
           querySelector: function(el, selector) {
@@ -274,6 +275,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang"], functio
           return [new ABSTRACT()];
         }});
       Object.defineProperty(DomAdapter.prototype.parse, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      Object.defineProperty(DomAdapter.prototype.query, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
       Object.defineProperty(DomAdapter.prototype.querySelector, "parameters", {get: function() {

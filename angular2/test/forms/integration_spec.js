@@ -162,6 +162,30 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/chang
           }));
         }));
       }));
+      describe("nested forms", (function() {
+        it("should init DOM with the given form object", (function(done) {
+          var form = new ControlGroup({"nested": new ControlGroup({"login": new Control("value")})});
+          var ctx = new MyComp(form);
+          var t = "<div [control-group]=\"form\">\n                    <div control-group=\"nested\">\n                      <input type=\"text\" control=\"login\">\n                    </div>\n                </div>";
+          compile(MyComp, t, ctx, (function(view) {
+            var input = queryView(view, "input");
+            expect(input.value).toEqual("value");
+            done();
+          }));
+        }));
+        it("should update the control group values on DOM change", (function(done) {
+          var form = new ControlGroup({"nested": new ControlGroup({"login": new Control("value")})});
+          var ctx = new MyComp(form);
+          var t = "<div [control-group]=\"form\">\n                    <div control-group=\"nested\">\n                      <input type=\"text\" control=\"login\">\n                    </div>\n                </div>";
+          compile(MyComp, t, ctx, (function(view) {
+            var input = queryView(view, "input");
+            input.value = "updatedValue";
+            dispatchEvent(input, "change");
+            expect(form.value).toEqual({"nested": {"login": "updatedValue"}});
+            done();
+          }));
+        }));
+      }));
     }));
   }
   $__export("main", main);

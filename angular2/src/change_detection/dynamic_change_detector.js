@@ -87,16 +87,33 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           this.pipes = ListWrapper.createFixedSize(protoRecords.length + 1);
           this.prevContexts = ListWrapper.createFixedSize(protoRecords.length + 1);
           this.changes = ListWrapper.createFixedSize(protoRecords.length + 1);
+          ListWrapper.fill(this.values, uninitialized);
+          ListWrapper.fill(this.pipes, null);
+          ListWrapper.fill(this.prevContexts, uninitialized);
+          ListWrapper.fill(this.changes, false);
           this.protos = protoRecords;
         };
         return ($traceurRuntime.createClass)(DynamicChangeDetector, {
-          setContext: function(context) {
+          hydrate: function(context) {
             assert.argumentTypes(context, assert.type.any);
+            this.values[0] = context;
+          },
+          dehydrate: function() {
+            this._destroyPipes();
             ListWrapper.fill(this.values, uninitialized);
             ListWrapper.fill(this.changes, false);
             ListWrapper.fill(this.pipes, null);
             ListWrapper.fill(this.prevContexts, uninitialized);
-            this.values[0] = context;
+          },
+          _destroyPipes: function() {
+            for (var i = 0; i < this.pipes.length; ++i) {
+              if (isPresent(this.pipes[i])) {
+                this.pipes[i].onDestroy();
+              }
+            }
+          },
+          hydrated: function() {
+            return assert.returnType((this.values[0] !== uninitialized), assert.type.boolean);
           },
           detectChangesInRecords: function(throwOnChange) {
             assert.argumentTypes(throwOnChange, assert.type.boolean);
@@ -214,11 +231,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             var storedPipe = this._readPipe(proto);
             if (isPresent(storedPipe) && storedPipe.supports(context)) {
               return storedPipe;
-            } else {
-              var pipe = this.pipeRegistry.get(proto.name, context);
-              this._writePipe(proto, pipe);
-              return pipe;
             }
+            if (isPresent(storedPipe)) {
+              storedPipe.onDestroy();
+            }
+            var pipe = this.pipeRegistry.get(proto.name, context);
+            this._writePipe(proto, pipe);
+            return pipe;
           },
           _readContext: function(proto) {
             assert.argumentTypes(proto, ProtoRecord);
@@ -272,7 +291,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       Object.defineProperty(DynamicChangeDetector, "parameters", {get: function() {
           return [[assert.type.any], [PipeRegistry], [assert.genericType(List, ProtoRecord)]];
         }});
-      Object.defineProperty(DynamicChangeDetector.prototype.setContext, "parameters", {get: function() {
+      Object.defineProperty(DynamicChangeDetector.prototype.hydrate, "parameters", {get: function() {
           return [[assert.type.any]];
         }});
       Object.defineProperty(DynamicChangeDetector.prototype.detectChangesInRecords, "parameters", {get: function() {

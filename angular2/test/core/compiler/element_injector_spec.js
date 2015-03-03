@@ -25,6 +25,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       Ancestor,
       EventEmitter,
       onDestroy,
+      Optional,
       Injector,
       Inject,
       bind,
@@ -41,6 +42,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       SimpleDirective,
       SomeOtherDirective,
       NeedsDirective,
+      OptionallyNeedsDirective,
       NeedDirectiveFromParent,
       NeedDirectiveFromAncestor,
       NeedsService,
@@ -244,6 +246,11 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
             return injector([NeedDirectiveFromParent]);
           })).toThrowError('No provider for SimpleDirective! (NeedDirectiveFromParent -> SimpleDirective)');
         });
+        it("should inject null when no directive found", function() {
+          var inj = injector([OptionallyNeedsDirective]);
+          var d = inj.get(OptionallyNeedsDirective);
+          expect(d.dependency).toEqual(null);
+        });
         it("should accept SimpleDirective bindings instead of SimpleDirective types", function() {
           var inj = injector([DirectiveBinding.createFromBinding(bind(SimpleDirective).toClass(SimpleDirective), null)]);
           expect(inj.get(SimpleDirective)).toBeAnInstanceOf(SimpleDirective);
@@ -378,6 +385,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       onDestroy = $__m.onDestroy;
       Directive = $__m.Directive;
     }, function($__m) {
+      Optional = $__m.Optional;
       Injector = $__m.Injector;
       Inject = $__m.Inject;
       bind = $__m.bind;
@@ -434,6 +442,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       }());
       Object.defineProperty(NeedsDirective, "parameters", {get: function() {
           return [[SimpleDirective]];
+        }});
+      OptionallyNeedsDirective = (function() {
+        var OptionallyNeedsDirective = function OptionallyNeedsDirective(dependency) {
+          assert.argumentTypes(dependency, SimpleDirective);
+          this.dependency = dependency;
+        };
+        return ($traceurRuntime.createClass)(OptionallyNeedsDirective, {}, {});
+      }());
+      Object.defineProperty(OptionallyNeedsDirective, "parameters", {get: function() {
+          return [[SimpleDirective, new Optional()]];
         }});
       NeedDirectiveFromParent = (function() {
         var NeedDirectiveFromParent = function NeedDirectiveFromParent(dependency) {

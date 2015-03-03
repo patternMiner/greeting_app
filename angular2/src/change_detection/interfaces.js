@@ -53,9 +53,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection"], f
             assert.argumentTypes(cd, ChangeDetector);
           },
           remove: function() {},
-          setContext: function(context) {
+          hydrate: function(context) {
             assert.argumentTypes(context, assert.type.any);
           },
+          dehydrate: function() {},
           markPathToRootAsCheckOnce: function() {},
           detectChanges: function() {},
           checkNoChanges: function() {}
@@ -67,7 +68,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection"], f
       Object.defineProperty(ChangeDetector.prototype.removeChild, "parameters", {get: function() {
           return [[ChangeDetector]];
         }});
-      Object.defineProperty(ChangeDetector.prototype.setContext, "parameters", {get: function() {
+      Object.defineProperty(ChangeDetector.prototype.hydrate, "parameters", {get: function() {
           return [[assert.type.any]];
         }});
     }

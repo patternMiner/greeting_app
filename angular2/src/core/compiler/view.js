@@ -151,13 +151,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
             } else {
               this.context = newContext;
             }
-            this.changeDetector.setContext(this.context);
+            this.changeDetector.hydrate(this.context);
           },
           _dehydrateContext: function() {
             if (isPresent(this.contextWithLocals)) {
               this.contextWithLocals.clearValues();
             }
             this.context = null;
+            this.changeDetector.dehydrate();
           },
           hydrate: function(appInjector, hostElementInjector, context) {
             assert.argumentTypes(appInjector, Injector, hostElementInjector, ElementInjector, context, Object);

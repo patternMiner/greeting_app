@@ -91,6 +91,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
           view.dehydrate();
           expect(view.hydrated()).toBe(false);
         }));
+        it('should hydrate and dehydrate the change detector', (function() {
+          var ctx = new Object();
+          view.hydrate(null, null, ctx);
+          expect(view.changeDetector.hydrated()).toBe(true);
+          view.dehydrate();
+          expect(view.changeDetector.hydrated()).toBe(false);
+        }));
         it('should use the view pool to reuse views', (function() {
           var pv = new ProtoView(el('<div id="1"></div>'), new DynamicProtoChangeDetector(null), null);
           var fakeView = new FakeView();

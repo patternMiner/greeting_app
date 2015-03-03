@@ -39,9 +39,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
     assert.argumentTypes(type, assert.type.string, fieldsDefinitions, assert.type.string);
     return assert.returnType((("\nvar " + type + " = function " + type + "(dispatcher, pipeRegistry, protos) {\n" + ABSTRACT_CHANGE_DETECTOR + ".call(this);\n" + DISPATCHER_ACCESSOR + " = dispatcher;\n" + PIPE_REGISTRY_ACCESSOR + " = pipeRegistry;\n" + PROTOS_ACCESSOR + " = protos;\n" + fieldsDefinitions + "\n}\n\n" + type + ".prototype = Object.create(" + ABSTRACT_CHANGE_DETECTOR + ".prototype);\n")), assert.type.string);
   }
-  function setContextTemplate(type) {
-    assert.argumentTypes(type, assert.type.string);
-    return assert.returnType((("\n" + type + ".prototype.setContext = function(context) {\n  this.context = context;\n}\n")), assert.type.string);
+  function pipeOnDestroyTemplate(pipeNames) {
+    return pipeNames.map((function(p) {
+      return (p + ".onDestroy()");
+    })).join("\n");
+  }
+  function hydrateTemplate(type, fieldsDefinitions, pipeOnDestroy) {
+    assert.argumentTypes(type, assert.type.string, fieldsDefinitions, assert.type.string, pipeOnDestroy, assert.type.string);
+    return assert.returnType((("\n" + type + ".prototype.hydrate = function(context) {\n  this.context = context;\n}\n" + type + ".prototype.dehydrate = function() {\n  " + pipeOnDestroy + "\n  " + fieldsDefinitions + "\n}\n" + type + ".prototype.hydrated = function() {\n  return this.context !== " + UTIL + ".unitialized();\n}\n")), assert.type.string);
   }
   function detectChangesTemplate(type, body) {
     assert.argumentTypes(type, assert.type.string, body, assert.type.string);
@@ -57,7 +62,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
   }
   function pipeCheckTemplate(context, pipe, pipeType, value, change, addRecord, notify) {
     assert.argumentTypes(context, assert.type.string, pipe, assert.type.string, pipeType, assert.type.string, value, assert.type.string, change, assert.type.string, addRecord, assert.type.string, notify, assert.type.string);
-    return assert.returnType((("\nif (" + pipe + " === " + UTIL + ".unitialized() || !" + pipe + ".supports(" + context + ")) {\n  " + pipe + " = " + PIPE_REGISTRY_ACCESSOR + ".get('" + pipeType + "', " + context + ");\n}\n\n" + CHANGE_LOCAL + " = " + pipe + ".transform(" + context + ");\nif (! " + UTIL + ".noChangeMarker(" + CHANGE_LOCAL + ")) {\n  " + value + " = " + CHANGE_LOCAL + ";\n  " + change + " = true;\n  " + addRecord + "\n}\n" + notify + "\n")), assert.type.string);
+    return assert.returnType((("\nif (" + pipe + " === " + UTIL + ".unitialized()) {\n  " + pipe + " = " + PIPE_REGISTRY_ACCESSOR + ".get('" + pipeType + "', " + context + ");\n} else if (!" + pipe + ".supports(" + context + ")) {\n  " + pipe + ".onDestroy();\n  " + pipe + " = " + PIPE_REGISTRY_ACCESSOR + ".get('" + pipeType + "', " + context + ");\n}\n\n" + CHANGE_LOCAL + " = " + pipe + ".transform(" + context + ");\nif (! " + UTIL + ".noChangeMarker(" + CHANGE_LOCAL + ")) {\n  " + value + " = " + CHANGE_LOCAL + ";\n  " + change + " = true;\n  " + addRecord + "\n}\n" + notify + "\n")), assert.type.string);
   }
   function referenceCheckTemplate(assignment, newValue, oldValue, change, addRecord, notify) {
     return ("\n" + assignment + "\nif (" + newValue + " !== " + oldValue + " || (" + newValue + " !== " + newValue + ") && (" + oldValue + " !== " + oldValue + ")) {\n  " + change + " = true;\n  " + addRecord + "\n  " + oldValue + " = " + newValue + ";\n}\n" + notify + "\n");
@@ -144,8 +149,11 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       Object.defineProperty(constructorTemplate, "parameters", {get: function() {
           return [[assert.type.string], [assert.type.string]];
         }});
-      Object.defineProperty(setContextTemplate, "parameters", {get: function() {
-          return [[assert.type.string]];
+      Object.defineProperty(pipeOnDestroyTemplate, "parameters", {get: function() {
+          return [[List]];
+        }});
+      Object.defineProperty(hydrateTemplate, "parameters", {get: function() {
+          return [[assert.type.string], [assert.type.string], [assert.type.string]];
         }});
       Object.defineProperty(detectChangesTemplate, "parameters", {get: function() {
           return [[assert.type.string], [assert.type.string]];
@@ -219,22 +227,30 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             }))), assert.genericType(List, String));
           },
           generate: function() {
-            var text = typeTemplate(this.typeName, this.genConstructor(), this.genDetectChanges(), this.genSetContext());
+            var text = typeTemplate(this.typeName, this.genConstructor(), this.genDetectChanges(), this.genHydrate());
             return assert.returnType((new Function('AbstractChangeDetector', 'ChangeDetectionUtil', 'ContextWithVariableBindings', 'protos', text)(AbstractChangeDetector, ChangeDetectionUtil, ContextWithVariableBindings, this.records)), Function);
           },
           genConstructor: function() {
-            var $__0 = this;
+            return assert.returnType((constructorTemplate(this.typeName, this.genFieldDefinitions())), assert.type.string);
+          },
+          genHydrate: function() {
+            return assert.returnType((hydrateTemplate(this.typeName, this.genFieldDefinitions(), pipeOnDestroyTemplate(this.getnonNullPipeNames()))), assert.type.string);
+          },
+          genFieldDefinitions: function() {
             var fields = [];
             fields = fields.concat(this.fieldNames);
+            fields = fields.concat(this.getnonNullPipeNames());
+            return fieldDefinitionsTemplate(fields);
+          },
+          getnonNullPipeNames: function() {
+            var $__0 = this;
+            var pipes = [];
             this.records.forEach((function(r) {
               if (r.mode === RECORD_TYPE_PIPE) {
-                fields.push($__0.pipeNames[r.selfIndex]);
+                pipes.push($__0.pipeNames[r.selfIndex]);
               }
             }));
-            return assert.returnType((constructorTemplate(this.typeName, fieldDefinitionsTemplate(fields))), assert.type.string);
-          },
-          genSetContext: function() {
-            return assert.returnType((setContextTemplate(this.typeName)), assert.type.string);
+            return assert.returnType((pipes), assert.genericType(List, String));
           },
           genDetectChanges: function() {
             var body = this.genBody();

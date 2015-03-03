@@ -10,6 +10,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di"],
       Injector,
       Inject,
       InjectLazy,
+      Optional,
       bind,
       Engine,
       BrokenEngine,
@@ -18,6 +19,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di"],
       TurboEngine,
       Car,
       CarWithLazyEngine,
+      CarWithOptionalEngine,
       CarWithDashboard,
       SportsCar,
       CarWithInject,
@@ -91,6 +93,11 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di"],
         var car = injector.get(Car);
         expect(car).toBeAnInstanceOf(SportsCar);
         expect(car.engine).toBeAnInstanceOf(Engine);
+      });
+      it('should support optional dependencies', function() {
+        var injector = new Injector([CarWithOptionalEngine]);
+        var car = injector.get(CarWithOptionalEngine);
+        expect(car.engine).toEqual(null);
       });
       it("should flatten passed-in bindings", function() {
         var injector = new Injector([[[Engine, Car]]]);
@@ -232,6 +239,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di"],
       Injector = $__m.Injector;
       Inject = $__m.Inject;
       InjectLazy = $__m.InjectLazy;
+      Optional = $__m.Optional;
       bind = $__m.bind;
     }],
     execute: function() {
@@ -282,6 +290,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di"],
       }());
       Object.defineProperty(CarWithLazyEngine, "parameters", {get: function() {
           return [[new InjectLazy(Engine)]];
+        }});
+      CarWithOptionalEngine = (function() {
+        var CarWithOptionalEngine = function CarWithOptionalEngine(engine) {
+          assert.argumentTypes(engine, Engine);
+          this.engine = engine;
+        };
+        return ($traceurRuntime.createClass)(CarWithOptionalEngine, {}, {});
+      }());
+      Object.defineProperty(CarWithOptionalEngine, "parameters", {get: function() {
+          return [[Engine, new Optional()]];
         }});
       CarWithDashboard = (function() {
         var CarWithDashboard = function CarWithDashboard(engine, dashboard) {

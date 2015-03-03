@@ -10,7 +10,9 @@ System.register([], function($__export) {
     browser.executeScript('1+1');
     browser.manage().logs().get('browser').then(function(browserLog) {
       var filteredLog = browserLog.filter(function(logEntry) {
-        console.log('>> ' + require('util').inspect(logEntry));
+        if (logEntry.level.value >= webdriver.logging.Level.INFO.value) {
+          console.log('>> ' + logEntry.message);
+        }
         return logEntry.level.value > webdriver.logging.Level.WARNING.value;
       });
       expect(filteredLog.length).toEqual(0);
@@ -28,6 +30,6 @@ System.register([], function($__export) {
   };
 });
 
-//# sourceMappingURL=angular2/e2e_test/test_util.map
+//# sourceMappingURL=angular2/src/test_lib/e2e_util.map
 
-//# sourceMappingURL=../../angular2/e2e_test/test_util.js.map
+//# sourceMappingURL=../../../angular2/src/test_lib/e2e_util.js.map

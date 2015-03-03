@@ -37,6 +37,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
             return _attrToPropMap;
           },
           query: function(selector) {
+            assert.argumentTypes(selector, assert.type.string);
             return document.querySelector(selector);
           },
           querySelector: function(el, selector) {
@@ -289,24 +290,34 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
           },
           importIntoDoc: function(node) {
             assert.argumentTypes(node, Node);
-            return document.importNode(node, true);
+            var result = document.importNode(node, true);
+            if (this.isTemplateElement(result) && !result.content.childNodes.length && node.content.childNodes.length) {
+              var childNodes = node.content.childNodes;
+              for (var i = 0; i < childNodes.length; ++i) {
+                result.content.appendChild(this.importIntoDoc(childNodes[i]));
+              }
+            }
+            return result;
           },
           isPageRule: function(rule) {
-            return rule.type === CSSRule.PAGE_RULE;
+            return assert.returnType((rule.type === CSSRule.PAGE_RULE), assert.type.boolean);
           },
           isStyleRule: function(rule) {
-            return rule.type === CSSRule.STYLE_RULE;
+            return assert.returnType((rule.type === CSSRule.STYLE_RULE), assert.type.boolean);
           },
           isMediaRule: function(rule) {
-            return rule.type === CSSRule.MEDIA_RULE;
+            return assert.returnType((rule.type === CSSRule.MEDIA_RULE), assert.type.boolean);
           },
           isKeyframesRule: function(rule) {
-            return rule.type === CSSRule.KEYFRAMES_RULE;
+            return assert.returnType((rule.type === CSSRule.KEYFRAMES_RULE), assert.type.boolean);
           }
         }, {makeCurrent: function() {
             setRootDomAdapter(new BrowserDomAdapter());
           }}, $__super);
       }(DomAdapter)));
+      Object.defineProperty(BrowserDomAdapter.prototype.query, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
       Object.defineProperty(BrowserDomAdapter.prototype.querySelector, "parameters", {get: function() {
           return [[], [assert.type.string]];
         }});

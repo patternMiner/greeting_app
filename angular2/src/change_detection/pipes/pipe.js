@@ -15,6 +15,7 @@ System.register(["rtts_assert/rtts_assert"], function($__export) {
           supports: function(obj) {
             return assert.returnType((false), assert.type.boolean);
           },
+          onDestroy: function() {},
           transform: function(value) {
             assert.argumentTypes(value, assert.type.any);
             return assert.returnType((null), assert.type.any);

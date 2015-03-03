@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "angular2/src/facade/collection", "./model", "./validators"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/di", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "angular2/src/facade/collection", "./model", "./validators"], function($__export) {
   "use strict";
   var assert,
       Template,
@@ -7,9 +7,11 @@ System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/src/dom/d
       NgElement,
       Ancestor,
       onChange,
+      Optional,
       DOM,
       isBlank,
       isPresent,
+      isString,
       CONST,
       StringMapWrapper,
       ListWrapper,
@@ -43,10 +45,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/src/dom/d
       Ancestor = $__m.Ancestor;
       onChange = $__m.onChange;
     }, function($__m) {
+      Optional = $__m.Optional;
+    }, function($__m) {
       DOM = $__m.DOM;
     }, function($__m) {
       isBlank = $__m.isBlank;
       isPresent = $__m.isPresent;
+      isString = $__m.isString;
       CONST = $__m.CONST;
     }, function($__m) {
       StringMapWrapper = $__m.StringMapWrapper;
@@ -112,9 +117,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/src/dom/d
           return [[assert.type.string]];
         }});
       ControlDirective = $__export("ControlDirective", (function() {
-        var ControlDirective = function ControlDirective(groupDecorator, el) {
-          assert.argumentTypes(groupDecorator, ControlGroupDirective, el, NgElement);
-          this._groupDecorator = groupDecorator;
+        var ControlDirective = function ControlDirective(groupDirective, el) {
+          assert.argumentTypes(groupDirective, ControlGroupDirective, el, NgElement);
+          this._groupDirective = groupDirective;
           this._el = el;
           this.validator = validators.nullValidator;
         };
@@ -124,7 +129,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/src/dom/d
           },
           _initialize: function() {
             var $__0 = this;
-            this._groupDecorator.addDirective(this);
+            this._groupDirective.addDirective(this);
             var c = this._control();
             c.validator = validators.compose([c.validator, this.validator]);
             if (isBlank(this.valueAccessor)) {
@@ -142,7 +147,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/src/dom/d
             this._control().updateValue(this.valueAccessor.readValue(this._el.domElement));
           },
           _control: function() {
-            return this._groupDecorator.findControl(this.controlName);
+            return this._groupDirective.findControl(this.controlName);
           }
         }, {});
       }()));
@@ -160,13 +165,22 @@ System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/src/dom/d
           return [[ControlGroupDirective, new Ancestor()], [NgElement]];
         }});
       ControlGroupDirective = $__export("ControlGroupDirective", (function() {
-        var ControlGroupDirective = function ControlGroupDirective() {
+        var ControlGroupDirective = function ControlGroupDirective(groupDirective) {
+          assert.argumentTypes(groupDirective, ControlGroupDirective);
           $traceurRuntime.superConstructor(ControlGroupDirective).call(this);
+          this._groupDirective = groupDirective;
           this._directives = ListWrapper.create();
         };
         return ($traceurRuntime.createClass)(ControlGroupDirective, {
           set controlGroup(controlGroup) {
-            this._controlGroup = controlGroup;
+            if (isString(controlGroup)) {
+              this._controlGroupName = controlGroup;
+            } else {
+              this._controlGroup = controlGroup;
+            }
+            this._updateDomValue();
+          },
+          _updateDomValue: function() {
             ListWrapper.forEach(this._directives, (function(cd) {
               return cd._updateDomValue();
             }));
@@ -177,7 +191,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/src/dom/d
           },
           findControl: function(name) {
             assert.argumentTypes(name, assert.type.string);
-            return assert.returnType((this._controlGroup.controls[name]), Control);
+            return assert.returnType((this._getControlGroup().controls[name]), assert.type.any);
+          },
+          _getControlGroup: function() {
+            if (isPresent(this._controlGroupName)) {
+              return assert.returnType((this._groupDirective.findControl(this._controlGroupName)), ControlGroup);
+            } else {
+              return assert.returnType((this._controlGroup), ControlGroup);
+            }
           }
         }, {});
       }()));
@@ -187,8 +208,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/core", "angular2/src/dom/d
             bind: {'controlGroup': 'control-group'}
           })];
         }});
-      Object.defineProperty(Object.getOwnPropertyDescriptor(ControlGroupDirective.prototype, "controlGroup").set, "parameters", {get: function() {
-          return [[ControlGroup]];
+      Object.defineProperty(ControlGroupDirective, "parameters", {get: function() {
+          return [[ControlGroupDirective, new Optional(), new Ancestor()]];
         }});
       Object.defineProperty(ControlGroupDirective.prototype.addDirective, "parameters", {get: function() {
           return [[ControlDirective]];

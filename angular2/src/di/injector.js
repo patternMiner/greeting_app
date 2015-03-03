@@ -107,10 +107,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", ".
         };
         return ($traceurRuntime.createClass)(Injector, {
           get: function(token) {
-            return this._getByKey(Key.get(token), false, false);
+            return this._getByKey(Key.get(token), false, false, false);
+          },
+          getOptional: function(token) {
+            return this._getByKey(Key.get(token), false, false, true);
           },
           asyncGet: function(token) {
-            return this._getByKey(Key.get(token), true, false);
+            return this._getByKey(Key.get(token), true, false, false);
           },
           createChild: function(bindings) {
             assert.argumentTypes(bindings, List);
@@ -126,11 +129,11 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", ".
           _createInstances: function() {
             return assert.returnType((ListWrapper.createFixedSize(Key.numberOfKeys + 1)), List);
           },
-          _getByKey: function(key, returnPromise, returnLazy) {
+          _getByKey: function(key, returnPromise, returnLazy, optional) {
             var $__0 = this;
             if (returnLazy) {
               return (function() {
-                return $__0._getByKey(key, returnPromise, false);
+                return $__0._getByKey(key, returnPromise, false, optional);
               });
             }
             var strategy = returnPromise ? this._asyncStrategy : this._syncStrategy;
@@ -141,15 +144,19 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", ".
             if (isPresent(instance))
               return instance;
             if (isPresent(this._parent)) {
-              return this._parent._getByKey(key, returnPromise, returnLazy);
+              return this._parent._getByKey(key, returnPromise, returnLazy, optional);
             }
-            throw new NoProviderError(key);
+            if (optional) {
+              return null;
+            } else {
+              throw new NoProviderError(key);
+            }
           },
           _resolveDependencies: function(key, binding, forceAsync) {
             var $__0 = this;
             try {
               var getDependency = (function(d) {
-                return $__0._getByKey(d.key, forceAsync || d.asPromise, d.lazy);
+                return $__0._getByKey(d.key, forceAsync || d.asPromise, d.lazy, d.optional);
               });
               return assert.returnType((ListWrapper.map(binding.dependencies, getDependency)), List);
             } catch (e) {
@@ -195,7 +202,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", ".
           return [[List]];
         }});
       Object.defineProperty(Injector.prototype._getByKey, "parameters", {get: function() {
-          return [[Key], [assert.type.boolean], [assert.type.boolean]];
+          return [[Key], [assert.type.boolean], [assert.type.boolean], [assert.type.boolean]];
         }});
       Object.defineProperty(Injector.prototype._resolveDependencies, "parameters", {get: function() {
           return [[Key], [Binding], [assert.type.boolean]];

@@ -160,16 +160,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           return [[TreeNode]];
         }});
       DirectiveDependency = $__export("DirectiveDependency", (function($__super) {
-        var DirectiveDependency = function DirectiveDependency(key, asPromise, lazy, properties, depth, eventEmitterName) {
-          assert.argumentTypes(key, Key, asPromise, assert.type.boolean, lazy, assert.type.boolean, properties, List, depth, int, eventEmitterName, assert.type.string);
-          $traceurRuntime.superConstructor(DirectiveDependency).call(this, key, asPromise, lazy, properties);
+        var DirectiveDependency = function DirectiveDependency(key, asPromise, lazy, optional, properties, depth, eventEmitterName) {
+          assert.argumentTypes(key, Key, asPromise, assert.type.boolean, lazy, assert.type.boolean, optional, assert.type.boolean, properties, List, depth, int, eventEmitterName, assert.type.string);
+          $traceurRuntime.superConstructor(DirectiveDependency).call(this, key, asPromise, lazy, optional, properties);
           this.depth = depth;
           this.eventEmitterName = eventEmitterName;
         };
         return ($traceurRuntime.createClass)(DirectiveDependency, {}, {
           createFrom: function(d) {
             assert.argumentTypes(d, Dependency);
-            return assert.returnType((new DirectiveDependency(d.key, d.asPromise, d.lazy, d.properties, DirectiveDependency._depth(d.properties), DirectiveDependency._eventEmitterName(d.properties))), Dependency);
+            return assert.returnType((new DirectiveDependency(d.key, d.asPromise, d.lazy, d.optional, d.properties, DirectiveDependency._depth(d.properties), DirectiveDependency._eventEmitterName(d.properties))), Dependency);
           },
           _depth: function(properties) {
             if (properties.length == 0)
@@ -195,7 +195,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
         }, $__super);
       }(Dependency)));
       Object.defineProperty(DirectiveDependency, "parameters", {get: function() {
-          return [[Key], [assert.type.boolean], [assert.type.boolean], [List], [int], [assert.type.string]];
+          return [[Key], [assert.type.boolean], [assert.type.boolean], [assert.type.boolean], [List], [int], [assert.type.string]];
         }});
       Object.defineProperty(DirectiveDependency.createFrom, "parameters", {get: function() {
           return [[Dependency]];
@@ -497,7 +497,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             }
           },
           get: function(token) {
-            return this._getByKey(Key.get(token), 0, null);
+            return this._getByKey(Key.get(token), 0, false, null);
           },
           hasDirective: function(type) {
             assert.argumentTypes(type, Type);
@@ -606,7 +606,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             assert.argumentTypes(dep, DirectiveDependency, requestor, Key);
             if (isPresent(dep.eventEmitterName))
               return this._buildEventEmitter(dep);
-            return this._getByKey(dep.key, dep.depth, requestor);
+            return this._getByKey(dep.key, dep.depth, dep.optional, requestor);
           },
           _buildEventEmitter: function(dep) {
             var view = this._getPreBuiltObjectByKeyId(StaticKeys.instance().viewId);
@@ -618,8 +618,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             }
             return (function(_) {});
           },
-          _getByKey: function(key, depth, requestor) {
-            assert.argumentTypes(key, Key, depth, assert.type.number, requestor, Key);
+          _getByKey: function(key, depth, optional, requestor) {
+            assert.argumentTypes(key, Key, depth, assert.type.number, optional, assert.type.boolean, requestor, Key);
             var ei = this;
             if (!this._shouldIncludeSelf(depth)) {
               depth -= ei._proto.distanceToParent;
@@ -637,6 +637,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             }
             if (isPresent(this._host) && this._host._isComponentKey(key)) {
               return this._host.getComponent();
+            } else if (optional) {
+              return this._appInjector(requestor).getOptional(key);
             } else {
               return this._appInjector(requestor).get(key);
             }
@@ -830,7 +832,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           return [[DirectiveDependency], [Key]];
         }});
       Object.defineProperty(ElementInjector.prototype._getByKey, "parameters", {get: function() {
-          return [[Key], [assert.type.number], [Key]];
+          return [[Key], [assert.type.number], [assert.type.boolean], [Key]];
         }});
       Object.defineProperty(ElementInjector.prototype._appInjector, "parameters", {get: function() {
           return [[Key]];

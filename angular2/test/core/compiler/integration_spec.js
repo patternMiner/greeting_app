@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/mock/template_resolver_mock", "angular2/src/core/compiler/binding_propagation_config", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/annotations/visibility", "angular2/src/directives/if", "angular2/src/core/compiler/view_container"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/mock/template_resolver_mock", "angular2/src/core/compiler/binding_propagation_config", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/annotations/visibility", "angular2/src/directives/if", "angular2/src/core/compiler/view_container"], function($__export) {
   "use strict";
   var assert,
       describe,
@@ -15,10 +15,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       BaseException,
       assertionsEnabled,
       isJsObject,
+      PromiseWrapper,
       Injector,
       Lexer,
       Parser,
-      ChangeDetector,
       dynamicChangeDetection,
       DynamicChangeDetection,
       Pipe,
@@ -341,13 +341,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
           }));
         }));
       });
-      if (assertionsEnabled() && isJsObject({})) {
+      if (assertionsEnabled()) {
         var expectCompileError = function(inlineTpl, errMessage, done) {
           tplResolver.setTemplate(MyComp, new Template({inline: inlineTpl}));
-          compiler.compile(MyComp).then((function() {
-            throw new BaseException("Test failure: should not have come here as an exception was expected");
+          PromiseWrapper.then(compiler.compile(MyComp), (function(value) {
+            done("Test failure: should not have come here as an exception was expected");
           }), (function(err) {
-            expect(err.message).toBe(errMessage);
+            expect(err.message).toEqual(errMessage);
             done();
           }));
         };
@@ -391,11 +391,12 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       assertionsEnabled = $__m.assertionsEnabled;
       isJsObject = $__m.isJsObject;
     }, function($__m) {
+      PromiseWrapper = $__m.PromiseWrapper;
+    }, function($__m) {
       Injector = $__m.Injector;
     }, function($__m) {
       Lexer = $__m.Lexer;
       Parser = $__m.Parser;
-      ChangeDetector = $__m.ChangeDetector;
       dynamicChangeDetection = $__m.dynamicChangeDetection;
       DynamicChangeDetection = $__m.DynamicChangeDetection;
       Pipe = $__m.Pipe;
