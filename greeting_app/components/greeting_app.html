@@ -2,9 +2,7 @@
   .greeting, .toggle-greeting {margin: 20px 20px 0px 20px;}
 </style>
 
-<div class="greeting">
-  <span [textContent]="greeting"></span>, <span red>World</span>!
-</div>
+<div class="greeting">{{greeting}}, </span><span red>World</span>!</div>
 
 <div class="toggle-greeting">
   <button (click)="toggleGreeting()">Toggle Greeting</button>
