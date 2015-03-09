@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/mock/template_resolver_mock", "angular2/di", "angular2/core", "angular2/forms", "angular2/src/forms/validators"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/src/mock/template_resolver_mock", "angular2/di", "angular2/core", "angular2/forms", "angular2/src/forms/validators", "angular2/src/reflection/reflection"], function($__export) {
   "use strict";
   var assert,
       ddescribe,
@@ -24,6 +24,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/chang
       ComponentUrlMapper,
       UrlResolver,
       StyleUrlResolver,
+      CssProcessor,
       MockTemplateResolver,
       Injector,
       Component,
@@ -37,6 +38,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/chang
       ControlValueAccessor,
       RequiredValidatorDirective,
       validators,
+      reflector,
       MyComp,
       WrappedValueAccessor,
       WrappedValue;
@@ -47,13 +49,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/chang
     function compile(componentType, template, context, callback) {
       var tplResolver = new MockTemplateResolver();
       var urlResolver = new UrlResolver();
-      var compiler = new Compiler(dynamicChangeDetection, new TemplateLoader(null, null), new DirectiveMetadataReader(), new Parser(new Lexer()), new CompilerCache(), new NativeShadowDomStrategy(new StyleUrlResolver(urlResolver)), tplResolver, new ComponentUrlMapper(), urlResolver);
+      var compiler = new Compiler(dynamicChangeDetection, new TemplateLoader(null, null), new DirectiveMetadataReader(), new Parser(new Lexer()), new CompilerCache(), new NativeShadowDomStrategy(new StyleUrlResolver(urlResolver)), tplResolver, new ComponentUrlMapper(), urlResolver, new CssProcessor(null));
       tplResolver.setTemplate(componentType, new Template({
         inline: template,
         directives: [ControlGroupDirective, ControlDirective, WrappedValue, RequiredValidatorDirective]
       }));
       compiler.compile(componentType).then((function(pv) {
-        var view = pv.instantiate(null, null);
+        var view = pv.instantiate(null, null, reflector);
         view.hydrate(new Injector([]), null, context);
         detectChanges(view);
         callback(view);
@@ -225,6 +227,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/chang
     }, function($__m) {
       StyleUrlResolver = $__m.StyleUrlResolver;
     }, function($__m) {
+      CssProcessor = $__m.CssProcessor;
+    }, function($__m) {
       MockTemplateResolver = $__m.MockTemplateResolver;
     }, function($__m) {
       Injector = $__m.Injector;
@@ -242,6 +246,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/chang
       RequiredValidatorDirective = $__m.RequiredValidatorDirective;
     }, function($__m) {
       validators = $__m;
+    }, function($__m) {
+      reflector = $__m.reflector;
     }],
     execute: function() {
       MyComp = (function() {

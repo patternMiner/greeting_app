@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/facade/collection", "angular2/change_detection", "./directive_metadata_reader", "./view", "./pipeline/compile_pipeline", "./pipeline/compile_element", "./pipeline/default_steps", "./template_loader", "./template_resolver", "./directive_metadata", "../annotations/template", "./shadow_dom_strategy", "./pipeline/compile_step", "./component_url_mapper", "./url_resolver"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/facade/collection", "angular2/change_detection", "./directive_metadata_reader", "./view", "./pipeline/compile_pipeline", "./pipeline/compile_element", "./pipeline/default_steps", "./template_loader", "./template_resolver", "./directive_metadata", "../annotations/template", "./shadow_dom_strategy", "./pipeline/compile_step", "./component_url_mapper", "./url_resolver", "./css_processor"], function($__export) {
   "use strict";
   var assert,
       Type,
@@ -28,6 +28,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       CompileStep,
       ComponentUrlMapper,
       UrlResolver,
+      CssProcessor,
       CompilerCache,
       Compiler;
   return {
@@ -77,6 +78,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       ComponentUrlMapper = $__m.ComponentUrlMapper;
     }, function($__m) {
       UrlResolver = $__m.UrlResolver;
+    }, function($__m) {
+      CssProcessor = $__m.CssProcessor;
     }],
     execute: function() {
       CompilerCache = $__export("CompilerCache", (function() {
@@ -105,8 +108,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           return [[Type]];
         }});
       Compiler = $__export("Compiler", (function() {
-        var Compiler = function Compiler(changeDetection, templateLoader, reader, parser, cache, shadowDomStrategy, templateResolver, componentUrlMapper, urlResolver) {
-          assert.argumentTypes(changeDetection, ChangeDetection, templateLoader, TemplateLoader, reader, DirectiveMetadataReader, parser, Parser, cache, CompilerCache, shadowDomStrategy, ShadowDomStrategy, templateResolver, TemplateResolver, componentUrlMapper, ComponentUrlMapper, urlResolver, UrlResolver);
+        var Compiler = function Compiler(changeDetection, templateLoader, reader, parser, cache, shadowDomStrategy, templateResolver, componentUrlMapper, urlResolver, cssProcessor) {
+          assert.argumentTypes(changeDetection, ChangeDetection, templateLoader, TemplateLoader, reader, DirectiveMetadataReader, parser, Parser, cache, CompilerCache, shadowDomStrategy, ShadowDomStrategy, templateResolver, TemplateResolver, componentUrlMapper, ComponentUrlMapper, urlResolver, UrlResolver, cssProcessor, CssProcessor);
           this._changeDetection = changeDetection;
           this._reader = reader;
           this._parser = parser;
@@ -123,6 +126,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           this._componentUrlMapper = componentUrlMapper;
           this._urlResolver = urlResolver;
           this._appUrl = urlResolver.resolve(null, './');
+          this._cssProcessor = cssProcessor;
         };
         return ($traceurRuntime.createClass)(Compiler, {
           createSteps: function(component, template) {
@@ -135,7 +139,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             dirMetadata = ListWrapper.concat(dirMetadata, this._shadowDomDirectives);
             var cmpMetadata = this._reader.read(component);
             var templateUrl = this._templateLoader.getTemplateUrl(template);
-            return assert.returnType((createDefaultSteps(this._changeDetection, this._parser, cmpMetadata, dirMetadata, this._shadowDomStrategy, templateUrl)), assert.genericType(List, CompileStep));
+            return assert.returnType((createDefaultSteps(this._changeDetection, this._parser, cmpMetadata, dirMetadata, this._shadowDomStrategy, templateUrl, this._cssProcessor)), assert.genericType(List, CompileStep));
           },
           compile: function(component) {
             assert.argumentTypes(component, Type);
@@ -170,10 +174,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           },
           _compileTemplate: function(template, tplElement, component) {
             var pipeline = new CompilePipeline(this.createSteps(component, template));
-            var compilationCtxtDescription = stringify(this._reader.read(component).type);
             var compileElements;
             try {
-              compileElements = pipeline.process(tplElement, compilationCtxtDescription);
+              compileElements = pipeline.process(tplElement, stringify(component));
             } catch (ex) {
               return PromiseWrapper.reject(ex);
             }
@@ -206,10 +209,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             assert.argumentTypes(ce, CompileElement, promises, assert.genericType(List, Promise));
             var protoView = this._compile(ce.componentDirective.type);
             if (PromiseWrapper.isPromise(protoView)) {
-              ListWrapper.push(promises, protoView);
-              protoView.then(function(protoView) {
-                ce.inheritedElementBinder.nestedProtoView = protoView;
-              });
+              ListWrapper.push(promises, protoView.then(function(pv) {
+                ce.inheritedElementBinder.nestedProtoView = pv;
+              }));
             } else {
               ce.inheritedElementBinder.nestedProtoView = protoView;
             }
@@ -236,7 +238,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
         }, {});
       }()));
       Object.defineProperty(Compiler, "parameters", {get: function() {
-          return [[ChangeDetection], [TemplateLoader], [DirectiveMetadataReader], [Parser], [CompilerCache], [ShadowDomStrategy], [TemplateResolver], [ComponentUrlMapper], [UrlResolver]];
+          return [[ChangeDetection], [TemplateLoader], [DirectiveMetadataReader], [Parser], [CompilerCache], [ShadowDomStrategy], [TemplateResolver], [ComponentUrlMapper], [UrlResolver], [CssProcessor]];
         }});
       Object.defineProperty(Compiler.prototype.createSteps, "parameters", {get: function() {
           return [[Type], [Template]];

@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/di", "angular2/change_detection", "angular2/src/core/exception_handler", "angular2/src/core/compiler/compiler", "angular2/src/core/life_cycle/life_cycle", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/style_inliner", "angular2/src/mock/template_resolver_mock", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/compiler/view_container", "angular2/src/dom/browser_adapter"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/di", "angular2/change_detection", "angular2/src/core/exception_handler", "angular2/src/core/compiler/compiler", "angular2/src/core/life_cycle/life_cycle", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/style_inliner", "angular2/src/core/compiler/css_processor", "angular2/src/mock/template_resolver_mock", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/compiler/view_container", "angular2/src/dom/browser_adapter", "angular2/src/reflection/reflection"], function($__export) {
   "use strict";
   var assert,
       describe,
@@ -32,6 +32,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       UrlResolver,
       StyleUrlResolver,
       StyleInliner,
+      CssProcessor,
       MockTemplateResolver,
       Decorator,
       Component,
@@ -39,6 +40,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       Template,
       ViewContainer,
       BrowserDomAdapter,
+      reflector,
       TestDirectiveMetadataReader,
       ManualViewportDirective,
       AutoViewportDirective,
@@ -66,7 +68,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
               tplResolver;
           beforeEach((function() {
             tplResolver = new MockTemplateResolver();
-            compiler = new Compiler(dynamicChangeDetection, new TemplateLoader(null, null), new DirectiveMetadataReader(), new Parser(new Lexer()), new CompilerCache(), strategy, tplResolver, new ComponentUrlMapper(), urlResolver);
+            compiler = new Compiler(dynamicChangeDetection, new TemplateLoader(null, null), new DirectiveMetadataReader(), new Parser(new Lexer()), new CompilerCache(), strategy, tplResolver, new ComponentUrlMapper(), urlResolver, new CssProcessor(null));
           }));
           function compile(template, directives, assertions) {
             assert.argumentTypes(template, assert.type.any, directives, assert.genericType(List, Type), assertions, assert.type.any);
@@ -147,7 +149,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
     });
   }
   function createView(pv) {
-    var view = pv.instantiate(null, null);
+    var view = pv.instantiate(null, null, reflector);
     view.hydrate(new Injector([]), null, {});
     return view;
   }
@@ -203,6 +205,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
     }, function($__m) {
       StyleInliner = $__m.StyleInliner;
     }, function($__m) {
+      CssProcessor = $__m.CssProcessor;
+    }, function($__m) {
       MockTemplateResolver = $__m.MockTemplateResolver;
     }, function($__m) {
       Decorator = $__m.Decorator;
@@ -214,6 +218,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       ViewContainer = $__m.ViewContainer;
     }, function($__m) {
       BrowserDomAdapter = $__m.BrowserDomAdapter;
+    }, function($__m) {
+      reflector = $__m.reflector;
     }],
     execute: function() {
       TestDirectiveMetadataReader = (function($__super) {

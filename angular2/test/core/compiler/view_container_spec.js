@@ -1,4 +1,4 @@
-System.register(["angular2/test_lib", "angular2/src/core/compiler/view", "angular2/src/core/compiler/view_container", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/di", "angular2/src/core/compiler/element_injector", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/change_detection"], function($__export) {
+System.register(["angular2/test_lib", "angular2/src/core/compiler/view", "angular2/src/core/compiler/view_container", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/di", "angular2/src/core/compiler/element_injector", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/change_detection", "angular2/src/reflection/reflection"], function($__export) {
   "use strict";
   var describe,
       xit,
@@ -24,6 +24,7 @@ System.register(["angular2/test_lib", "angular2/src/core/compiler/view", "angula
       ChangeDetector,
       Lexer,
       Parser,
+      reflector,
       AttachableChangeDetector,
       HydrateAwareFakeView,
       SomeDirective;
@@ -46,8 +47,8 @@ System.register(["angular2/test_lib", "angular2/src/core/compiler/view", "angula
         var insertionElement = dom.childNodes[1];
         parentView = createView([dom.childNodes[0]]);
         protoView = new ProtoView(el('<div>hi</div>'), new DynamicProtoChangeDetector(null), new NativeShadowDomStrategy(null));
-        elementInjector = new ElementInjector(null, null, null, null);
-        viewContainer = new ViewContainer(parentView, insertionElement, protoView, elementInjector, null);
+        elementInjector = new ElementInjector(null, null, null, null, reflector);
+        viewContainer = new ViewContainer(parentView, insertionElement, protoView, elementInjector, null, reflector);
         customViewWithOneNode = createView([el('<div>single</div>')]);
         customViewWithTwoNodes = createView([el('<div>one</div>'), el('<div>two</div>')]);
       }));
@@ -164,7 +165,7 @@ System.register(["angular2/test_lib", "angular2/src/core/compiler/view", "angula
           var pv = new ProtoView(el('<div class="ng-binding">{{}}</div>'), new DynamicProtoChangeDetector(null), new NativeShadowDomStrategy(null));
           pv.bindElement(new ProtoElementInjector(null, 1, [SomeDirective]));
           pv.bindTextNode(0, parser.parseBinding('foo', null));
-          fancyView = pv.instantiate(null, null);
+          fancyView = pv.instantiate(null, null, reflector);
         }));
         it('hydrating should update rootElementInjectors and parent change detector', (function() {
           viewContainer.insert(fancyView);
@@ -221,6 +222,8 @@ System.register(["angular2/test_lib", "angular2/src/core/compiler/view", "angula
       ChangeDetector = $__m.ChangeDetector;
       Lexer = $__m.Lexer;
       Parser = $__m.Parser;
+    }, function($__m) {
+      reflector = $__m.reflector;
     }],
     execute: function() {
       AttachableChangeDetector = (function() {

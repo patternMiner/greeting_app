@@ -350,11 +350,21 @@ System.register(["rtts_assert/rtts_assert"], function($__export) {
           fromMillis: function(ms) {
             return new Date(ms);
           },
+          toMillis: function(date) {
+            assert.argumentTypes(date, Date);
+            return date.getTime();
+          },
           now: function() {
             return new Date();
+          },
+          toJson: function(date) {
+            return date.toJSON();
           }
         });
       }()));
+      Object.defineProperty(DateWrapper.toMillis, "parameters", {get: function() {
+          return [[Date]];
+        }});
     }
   };
 });

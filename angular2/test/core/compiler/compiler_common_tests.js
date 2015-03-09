@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/view", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/compiler/pipeline/compile_element", "angular2/src/core/compiler/pipeline/compile_step", "angular2/src/core/compiler/pipeline/compile_control", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/template_resolver", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/change_detection", "angular2/src/core/compiler/shadow_dom_strategy"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/view", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/compiler/pipeline/compile_element", "angular2/src/core/compiler/pipeline/compile_step", "angular2/src/core/compiler/pipeline/compile_control", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/template_resolver", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/change_detection", "angular2/src/core/compiler/shadow_dom_strategy"], function($__export) {
   "use strict";
   var assert,
       describe,
@@ -35,6 +35,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       RuntimeComponentUrlMapper,
       UrlResolver,
       StyleUrlResolver,
+      CssProcessor,
       Lexer,
       Parser,
       dynamicChangeDetection,
@@ -231,6 +232,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
         templateResolver.setError(ParentComponent);
         templateResolver.setSync(NestedComponent);
         createNestedComponentSpec('(error -> sync)', templateResolver, 'Failed to load the template for ParentComponent');
+        templateResolver = new FakeTemplateResolver();
+        templateResolver.setSync(ParentComponent);
+        templateResolver.setError(NestedComponent);
+        createNestedComponentSpec('(sync -> error)', templateResolver, 'Failed to load the template for NestedComponent -> Failed to compile ParentComponent');
+        templateResolver = new FakeTemplateResolver();
+        templateResolver.setAsync(ParentComponent);
+        templateResolver.setError(NestedComponent);
+        createNestedComponentSpec('(async -> error)', templateResolver, 'Failed to load the template for NestedComponent -> Failed to compile ParentComponent');
       }));
       describe('URL resolution', (function() {
         it('should resolve template URLs by combining application, component and template URLs', (function(done) {
@@ -315,6 +324,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
     }, function($__m) {
       StyleUrlResolver = $__m.StyleUrlResolver;
     }, function($__m) {
+      CssProcessor = $__m.CssProcessor;
+    }, function($__m) {
       Lexer = $__m.Lexer;
       Parser = $__m.Parser;
       dynamicChangeDetection = $__m.dynamicChangeDetection;
@@ -354,7 +365,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       TestableCompiler = (function($__super) {
         var TestableCompiler = function TestableCompiler(reader, steps, loader, templateResolver, urlResolver, cmpUrlMapper) {
           assert.argumentTypes(reader, DirectiveMetadataReader, steps, assert.genericType(List, CompileStep), loader, TemplateLoader, templateResolver, TemplateResolver, urlResolver, UrlResolver, cmpUrlMapper, ComponentUrlMapper);
-          $traceurRuntime.superConstructor(TestableCompiler).call(this, dynamicChangeDetection, loader, reader, new Parser(new Lexer()), new CompilerCache(), new NativeShadowDomStrategy(new StyleUrlResolver(urlResolver)), templateResolver, cmpUrlMapper, urlResolver);
+          $traceurRuntime.superConstructor(TestableCompiler).call(this, dynamicChangeDetection, loader, reader, new Parser(new Lexer()), new CompilerCache(), new NativeShadowDomStrategy(new StyleUrlResolver(urlResolver)), templateResolver, cmpUrlMapper, urlResolver, new CssProcessor(null));
           this.steps = steps;
         };
         return ($traceurRuntime.createClass)(TestableCompiler, {createSteps: function(component, template) {

@@ -1,4 +1,4 @@
-System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/mock/template_resolver_mock", "angular2/src/directives/if"], function($__export) {
+System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/mock/template_resolver_mock", "angular2/src/directives/if"], function($__export) {
   "use strict";
   var describe,
       xit,
@@ -23,6 +23,7 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
       ComponentUrlMapper,
       UrlResolver,
       StyleUrlResolver,
+      CssProcessor,
       Component,
       Template,
       MockTemplateResolver,
@@ -38,11 +39,11 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
       beforeEach((function() {
         var urlResolver = new UrlResolver();
         tplResolver = new MockTemplateResolver();
-        compiler = new Compiler(dynamicChangeDetection, new TemplateLoader(null, null), new DirectiveMetadataReader(), new Parser(new Lexer()), new CompilerCache(), new NativeShadowDomStrategy(new StyleUrlResolver(urlResolver)), tplResolver, new ComponentUrlMapper(), urlResolver);
+        compiler = new Compiler(dynamicChangeDetection, new TemplateLoader(null, null), new DirectiveMetadataReader(), new Parser(new Lexer()), new CompilerCache(), new NativeShadowDomStrategy(new StyleUrlResolver(urlResolver)), tplResolver, new ComponentUrlMapper(), urlResolver, new CssProcessor(null));
       }));
       function createView(pv) {
         component = new TestComponent();
-        view = pv.instantiate(null, null);
+        view = pv.instantiate(null, null, null);
         view.hydrate(new Injector([]), null, component);
         cd = view.changeDetector;
       }
@@ -212,6 +213,8 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
       UrlResolver = $__m.UrlResolver;
     }, function($__m) {
       StyleUrlResolver = $__m.StyleUrlResolver;
+    }, function($__m) {
+      CssProcessor = $__m.CssProcessor;
     }, function($__m) {
       Component = $__m.Component;
     }, function($__m) {

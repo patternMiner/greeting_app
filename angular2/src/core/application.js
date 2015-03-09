@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/lang", "angular2/src/dom/browser_adapter", "angular2/src/dom/dom_adapter", "./compiler/compiler", "./compiler/view", "angular2/src/reflection/reflection", "angular2/change_detection", "./exception_handler", "./compiler/template_loader", "./compiler/template_resolver", "./compiler/directive_metadata_reader", "angular2/src/facade/collection", "angular2/src/facade/async", "angular2/src/core/zone/vm_turn_zone", "angular2/src/core/life_cycle/life_cycle", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/xhr/xhr", "angular2/src/core/compiler/xhr/xhr_impl", "angular2/src/core/events/event_manager", "angular2/src/core/events/hammer_gestures", "angular2/src/di/binding", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/style_inliner"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/lang", "angular2/src/dom/browser_adapter", "angular2/src/dom/dom_adapter", "./compiler/compiler", "./compiler/view", "angular2/src/reflection/reflection", "angular2/change_detection", "./exception_handler", "./compiler/template_loader", "./compiler/template_resolver", "./compiler/directive_metadata_reader", "angular2/src/facade/collection", "angular2/src/facade/async", "angular2/src/core/zone/vm_turn_zone", "angular2/src/core/life_cycle/life_cycle", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/xhr/xhr", "angular2/src/core/compiler/xhr/xhr_impl", "angular2/src/core/events/event_manager", "angular2/src/core/events/hammer_gestures", "angular2/src/di/binding", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/style_inliner", "angular2/src/core/compiler/css_processor"], function($__export) {
   "use strict";
   var assert,
       Injector,
@@ -45,6 +45,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
       UrlResolver,
       StyleUrlResolver,
       StyleInliner,
+      CssProcessor,
       _rootInjector,
       _rootBindings,
       appViewToken,
@@ -62,14 +63,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
         throw new BaseException(("The app selector \"" + selector + "\" did not match any elements"));
       }
       return element;
-    }), [appComponentAnnotatedTypeToken, appDocumentToken]), bind(appViewToken).toAsyncFactory((function(changeDetection, compiler, injector, appElement, appComponentAnnotatedType, strategy, eventManager) {
+    }), [appComponentAnnotatedTypeToken, appDocumentToken]), bind(appViewToken).toAsyncFactory((function(changeDetection, compiler, injector, appElement, appComponentAnnotatedType, strategy, eventManager, reflector) {
       return compiler.compile(appComponentAnnotatedType.type).then((function(protoView) {
         var appProtoView = ProtoView.createRootProtoView(protoView, appElement, appComponentAnnotatedType, changeDetection.createProtoChangeDetector('root'), strategy);
-        var view = appProtoView.instantiate(null, eventManager);
+        var view = appProtoView.instantiate(null, eventManager, reflector);
         view.hydrate(injector, null, new Object());
         return view;
       }));
-    }), [ChangeDetection, Compiler, Injector, appElementToken, appComponentAnnotatedTypeToken, ShadowDomStrategy, EventManager]), bind(appChangeDetectorToken).toFactory((function(rootView) {
+    }), [ChangeDetection, Compiler, Injector, appElementToken, appComponentAnnotatedTypeToken, ShadowDomStrategy, EventManager, Reflector]), bind(appChangeDetectorToken).toFactory((function(rootView) {
       return rootView.changeDetector;
     }), [appViewToken]), bind(appComponentType).toFactory((function(rootView) {
       return rootView.elementInjectors[0].getComponent();
@@ -78,7 +79,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
     }), [ExceptionHandler]), bind(EventManager).toFactory((function(zone) {
       var plugins = [new HammerGesturesPlugin(), new DomEventsPlugin()];
       return new EventManager(plugins, zone);
-    }), [VmTurnZone]), bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy), Compiler, CompilerCache, TemplateResolver, bind(ChangeDetection).toValue(dynamicChangeDetection), TemplateLoader, DirectiveMetadataReader, Parser, Lexer, ExceptionHandler, bind(XHR).toValue(new XHRImpl()), ComponentUrlMapper, UrlResolver, StyleUrlResolver, StyleInliner]), assert.genericType(List, Binding));
+    }), [VmTurnZone]), bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy), Compiler, CompilerCache, TemplateResolver, bind(ChangeDetection).toValue(dynamicChangeDetection), TemplateLoader, DirectiveMetadataReader, Parser, Lexer, ExceptionHandler, bind(XHR).toValue(new XHRImpl()), ComponentUrlMapper, UrlResolver, StyleUrlResolver, StyleInliner, bind(CssProcessor).toFactory((function() {
+      return new CssProcessor(null);
+    }), [])]), assert.genericType(List, Binding));
   }
   function _createVmZone(givenReporter) {
     assert.argumentTypes(givenReporter, Function);
@@ -194,6 +197,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
       StyleUrlResolver = $__m.StyleUrlResolver;
     }, function($__m) {
       StyleInliner = $__m.StyleInliner;
+    }, function($__m) {
+      CssProcessor = $__m.CssProcessor;
     }],
     execute: function() {
       _rootBindings = [bind(Reflector).toValue(reflector)];
