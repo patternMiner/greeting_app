@@ -1,6 +1,5 @@
 export class GreetingService {
-  greeting:string;
-  constructor() {
-    this.greeting = 'Hello';
-  }
+  get greeting() {return 'Hello';}
+  get btnLabel() {return 'Toggle greeting';}
+  get name() {return 'World';}
 }

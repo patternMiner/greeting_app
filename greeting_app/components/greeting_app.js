@@ -17,8 +17,8 @@ export class GreetingApp {
 
   constructor(service: GreetingService) {
     this.greeting = service.greeting;
-    this.name = 'World';
-    this.btnLabel = 'Toggle greeting';
+    this.name = service.name;
+    this.btnLabel = service.btnLabel;
   }
 
   toggleGreeting() {
