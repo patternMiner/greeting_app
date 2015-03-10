@@ -4,7 +4,6 @@ import {RedDec} from '../directives/red_dec';
 
 @Component({
   selector: 'greeting-app',
-  bind: {'blah' : 'blah'},
   componentServices: [GreetingService]
 })
 @Template({
@@ -28,13 +27,5 @@ export class GreetingApp {
 
   changeName(newName: string) {
     this.name = newName == '' ? 'World' : newName;
-  }
-
-  set blah(value) {
-    console.log('set blah called with value=' + value);
-  }
-
-  get blah() {
-    return 'Blah!';
   }
 }
