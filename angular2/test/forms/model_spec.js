@@ -84,43 +84,48 @@ System.register(["angular2/test_lib", "angular2/forms"], function($__export) {
             expect(g.errors).toEqual(null);
           }));
         }));
-      }));
-      describe("OptionalControl", (function() {
-        it("should read properties from the wrapped component", (function() {
-          var wrapperControl = new Control("value", validations.required);
-          var c = new OptionalControl(wrapperControl, true);
-          expect(c.value).toEqual('value');
-          expect(c.status).toEqual('VALID');
-          expect(c.validator).toEqual(validations.required);
-        }));
-        it("should update the wrapped component", (function() {
-          var wrappedControl = new Control("value");
-          var c = new OptionalControl(wrappedControl, true);
-          c.validator = validations.required;
-          c.updateValue("newValue");
-          expect(wrappedControl.validator).toEqual(validations.required);
-          expect(wrappedControl.value).toEqual('newValue');
-        }));
-        it("should not include an inactive component into the group value", (function() {
-          var group = new ControlGroup({
-            "required": new Control("requiredValue"),
-            "optional": new OptionalControl(new Control("optionalValue"), false)
-          });
-          expect(group.value).toEqual({"required": "requiredValue"});
-          group.controls["optional"].cond = true;
-          expect(group.value).toEqual({
-            "required": "requiredValue",
-            "optional": "optionalValue"
-          });
-        }));
-        it("should not run validations on an inactive component", (function() {
-          var group = new ControlGroup({
-            "required": new Control("requiredValue", validations.required),
-            "optional": new OptionalControl(new Control("", validations.required), false)
-          });
-          expect(group.valid).toEqual(true);
-          group.controls["optional"].cond = true;
-          expect(group.valid).toEqual(false);
+        describe("optional components", (function() {
+          describe("contains", (function() {
+            var group;
+            beforeEach((function() {
+              group = new ControlGroup({
+                "required": new Control("requiredValue"),
+                "optional": new Control("optionalValue")
+              }, {"optional": false});
+            }));
+            it("should return false when the component is not included", (function() {
+              expect(group.contains("optional")).toEqual(false);
+            }));
+            it("should return false when there is no component with the given name", (function() {
+              expect(group.contains("something else")).toEqual(false);
+            }));
+            it("should return true when the component is included", (function() {
+              expect(group.contains("required")).toEqual(true);
+              group.include("optional");
+              expect(group.contains("optional")).toEqual(true);
+            }));
+          }));
+          it("should not include an inactive component into the group value", (function() {
+            var group = new ControlGroup({
+              "required": new Control("requiredValue"),
+              "optional": new Control("optionalValue")
+            }, {"optional": false});
+            expect(group.value).toEqual({"required": "requiredValue"});
+            group.include("optional");
+            expect(group.value).toEqual({
+              "required": "requiredValue",
+              "optional": "optionalValue"
+            });
+          }));
+          it("should not run validations on an inactive component", (function() {
+            var group = new ControlGroup({
+              "required": new Control("requiredValue", validations.required),
+              "optional": new Control("", validations.required)
+            }, {"optional": false});
+            expect(group.valid).toEqual(true);
+            group.include("optional");
+            expect(group.valid).toEqual(false);
+          }));
         }));
       }));
     }));

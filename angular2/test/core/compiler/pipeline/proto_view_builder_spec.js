@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/lang", "angular2/change_detection", "angular2/src/core/compiler/element_binder", "angular2/src/core/compiler/pipeline/proto_view_builder", "angular2/src/core/compiler/pipeline/compile_pipeline", "angular2/src/core/compiler/pipeline/compile_element", "angular2/src/core/compiler/pipeline/compile_step", "angular2/src/core/compiler/pipeline/compile_control", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/facade/collection"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/change_detection", "angular2/src/core/compiler/element_binder", "angular2/src/core/compiler/pipeline/proto_view_builder", "angular2/src/core/compiler/pipeline/compile_pipeline", "angular2/src/core/compiler/pipeline/compile_element", "angular2/src/core/compiler/pipeline/compile_step", "angular2/src/core/compiler/pipeline/compile_control", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/facade/collection"], function($__export) {
   "use strict";
   var assert,
       describe,
@@ -9,6 +9,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       ddescribe,
       el,
       isPresent,
+      DOM,
       dynamicChangeDetection,
       ElementBinder,
       ProtoViewBuilder,
@@ -24,10 +25,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       function createPipeline() {
         var variableBindings = arguments[0] !== (void 0) ? arguments[0] : null;
         return new CompilePipeline([new MockStep((function(parent, current, control) {
-          if (isPresent(current.element.getAttribute('viewroot'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'viewroot'))) {
             current.isViewRoot = true;
           }
-          if (isPresent(current.element.getAttribute('var-binding'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'var-binding'))) {
             current.variableBindings = MapWrapper.createFromStringMap(variableBindings);
           }
           current.inheritedElementBinder = new ElementBinder(null, null, null);
@@ -101,6 +102,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       el = $__m.el;
     }, function($__m) {
       isPresent = $__m.isPresent;
+    }, function($__m) {
+      DOM = $__m.DOM;
     }, function($__m) {
       dynamicChangeDetection = $__m.dynamicChangeDetection;
     }, function($__m) {

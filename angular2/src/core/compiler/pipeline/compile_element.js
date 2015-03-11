@@ -12,6 +12,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       Type,
       StringJoiner,
       assertionsEnabled,
+      RegExp,
+      RegExpWrapper,
+      StringWrapper,
       DirectiveMetadata,
       Decorator,
       Component,
@@ -20,7 +23,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       ProtoElementInjector,
       ProtoView,
       AST,
-      CompileElement;
+      CompileElement,
+      _hyphenRe;
   function getElementDescription(domElement) {
     var buf = new StringJoiner();
     var atts = DOM.attributeMap(domElement);
@@ -63,6 +67,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       Type = $__m.Type;
       StringJoiner = $__m.StringJoiner;
       assertionsEnabled = $__m.assertionsEnabled;
+      RegExp = $__m.RegExp;
+      RegExpWrapper = $__m.RegExpWrapper;
+      StringWrapper = $__m.StringWrapper;
     }, function($__m) {
       DirectiveMetadata = $__m.DirectiveMetadata;
     }, function($__m) {
@@ -141,12 +148,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
             MapWrapper.set(this.textNodeBindings, indexInParent, expression);
           },
           addPropertyBinding: function(property, expression) {
-            property = property.replace(/\-([a-z])/gi,
-                function (match, hyphenated) {return hyphenated.toUpperCase();});
             assert.argumentTypes(property, assert.type.string, expression, AST);
             if (isBlank(this.propertyBindings)) {
               this.propertyBindings = MapWrapper.create();
             }
+            property = StringWrapper.replaceAllMapped(property, _hyphenRe, (function(match) {
+              return match[1].toUpperCase();
+            }));
             MapWrapper.set(this.propertyBindings, property, expression);
           },
           addVariableBinding: function(variableName, variableValue) {
@@ -217,6 +225,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       Object.defineProperty(addDescriptionAttribute, "parameters", {get: function() {
           return [[StringJoiner], [assert.type.string], []];
         }});
+      _hyphenRe = RegExpWrapper.create('-([a-z])');
     }
   };
 });

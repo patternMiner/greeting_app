@@ -31,6 +31,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           var $__1 = arguments[0] !== (void 0) ? arguments[0] : {},
               selector = $__1.selector,
               bind = $__1.bind,
+              events = $__1.events,
               lightDomServices = $__1.lightDomServices,
               implementsTypes = $__1.implementsTypes,
               lifecycle = $__1.lifecycle;
@@ -38,6 +39,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           this.lightDomServices = lightDomServices;
           this.implementsTypes = implementsTypes;
           this.bind = bind;
+          this.events = events;
           this.lifecycle = lifecycle;
         };
         return ($traceurRuntime.createClass)(Directive, {hasLifecycleHook: function(hook) {
@@ -56,6 +58,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           var $__1 = arguments[0] !== (void 0) ? arguments[0] : {},
               selector = $__1.selector,
               bind = $__1.bind,
+              events = $__1.events,
               lightDomServices = $__1.lightDomServices,
               shadowDomServices = $__1.shadowDomServices,
               componentServices = $__1.componentServices,
@@ -64,14 +67,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           $traceurRuntime.superConstructor(Component).call(this, {
             selector: selector,
             bind: bind,
+            events: events,
             lightDomServices: lightDomServices,
             implementsTypes: implementsTypes,
             lifecycle: lifecycle
           });
-          this.lightDomServices = lightDomServices;
           this.shadowDomServices = shadowDomServices;
           this.componentServices = componentServices;
-          this.lifecycle = lifecycle;
         };
         return ($traceurRuntime.createClass)(Component, {}, {}, $__super);
       }(Directive)));
@@ -84,6 +86,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           var $__1 = arguments[0] !== (void 0) ? arguments[0] : {},
               selector = $__1.selector,
               bind = $__1.bind,
+              events = $__1.events,
               lightDomServices = $__1.lightDomServices,
               implementsTypes = $__1.implementsTypes,
               lifecycle = $__1.lifecycle,
@@ -92,6 +95,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           $traceurRuntime.superConstructor(Decorator).call(this, {
             selector: selector,
             bind: bind,
+            events: events,
             lightDomServices: lightDomServices,
             implementsTypes: implementsTypes,
             lifecycle: lifecycle
@@ -107,12 +111,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           var $__1 = arguments[0] !== (void 0) ? arguments[0] : {},
               selector = $__1.selector,
               bind = $__1.bind,
+              events = $__1.events,
               lightDomServices = $__1.lightDomServices,
               implementsTypes = $__1.implementsTypes,
               lifecycle = $__1.lifecycle;
           $traceurRuntime.superConstructor(Viewport).call(this, {
             selector: selector,
             bind: bind,
+            events: events,
             lightDomServices: lightDomServices,
             implementsTypes: implementsTypes,
             lifecycle: lifecycle

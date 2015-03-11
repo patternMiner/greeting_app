@@ -6,7 +6,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       ListWrapper,
       isBlank,
       isPresent,
-      View,
+      viewModule,
       ElementInjector,
       ViewContainer,
       Content,
@@ -43,7 +43,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       isBlank = $__m.isBlank;
       isPresent = $__m.isPresent;
     }, function($__m) {
-      View = $__m.View;
+      viewModule = $__m;
     }, function($__m) {
       ElementInjector = $__m.ElementInjector;
     }, function($__m) {
@@ -69,7 +69,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       }());
       LightDom = $__export("LightDom", (function() {
         var LightDom = function LightDom(lightDomView, shadowDomView, element) {
-          assert.argumentTypes(lightDomView, View, shadowDomView, View, element, assert.type.any);
+          assert.argumentTypes(lightDomView, viewModule.View, shadowDomView, viewModule.View, element, assert.type.any);
           this.lightDomView = lightDomView;
           this.shadowDomView = shadowDomView;
           this.nodes = DOM.childNodesAsList(element);
@@ -87,7 +87,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
           },
           _collectAllContentTags: function(view, acc) {
             var $__0 = this;
-            assert.argumentTypes(view, View, acc, assert.genericType(List, Content));
+            assert.argumentTypes(view, viewModule.View, acc, assert.genericType(List, Content));
             var eis = view.elementInjectors;
             for (var i = 0; i < eis.length; ++i) {
               var ei = eis[i];
@@ -136,10 +136,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
         }, {});
       }()));
       Object.defineProperty(LightDom, "parameters", {get: function() {
-          return [[View], [View], []];
+          return [[viewModule.View], [viewModule.View], []];
         }});
       Object.defineProperty(LightDom.prototype._collectAllContentTags, "parameters", {get: function() {
-          return [[View], [assert.genericType(List, Content)]];
+          return [[viewModule.View], [assert.genericType(List, Content)]];
         }});
       Object.defineProperty(redistributeNodes, "parameters", {get: function() {
           return [[assert.genericType(List, Content)], [List]];

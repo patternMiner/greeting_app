@@ -31,7 +31,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
     assert.argumentTypes(c, ControlGroup);
     var res = {};
     StringMapWrapper.forEach(c.controls, (function(control, name) {
-      if (control.active && isPresent(control.errors)) {
+      if (c.contains(name) && isPresent(control.errors)) {
         StringMapWrapper.forEach(control.errors, (function(value, error) {
           if (!StringMapWrapper.contains(res, error)) {
             res[error] = [];

@@ -56,7 +56,7 @@ System.register(["angular2/test_lib", "angular2/src/facade/collection", "angular
         }));
         it('should work with top-level template node', (function() {
           var rootElement = DOM.createTemplate('<div template>x</div>');
-          var originalChild = rootElement.content.childNodes[0];
+          var originalChild = DOM.content(rootElement).childNodes[0];
           var results = createPipeline().process(rootElement);
           expect(results[0].element).toBe(rootElement);
           expect(results[0].isViewRoot).toBe(true);
@@ -104,7 +104,7 @@ System.register(["angular2/test_lib", "angular2/src/facade/collection", "angular
         }));
         it('should work with top-level template node', (function() {
           var rootElement = DOM.createTemplate('<div *foo>x</div>');
-          var originalChild = rootElement.content.childNodes[0];
+          var originalChild = DOM.content(rootElement).childNodes[0];
           var results = createPipeline().process(rootElement);
           expect(results[0].element).toBe(rootElement);
           expect(results[0].isViewRoot).toBe(true);

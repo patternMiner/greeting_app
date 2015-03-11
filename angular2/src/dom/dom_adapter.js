@@ -234,6 +234,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang"], functio
           defaultDoc: function() {
             throw _abstract();
           },
+          getTitle: function() {
+            throw _abstract();
+          },
+          setTitle: function(newTitle) {
+            assert.argumentTypes(newTitle, assert.type.string);
+            throw _abstract();
+          },
           elementMatches: function(n, selector) {
             assert.argumentTypes(n, assert.type.any, selector, assert.type.string);
             throw _abstract();
@@ -267,6 +274,17 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang"], functio
             throw _abstract();
           },
           isKeyframesRule: function(rule) {
+            throw _abstract();
+          },
+          getHref: function(element) {
+            throw _abstract();
+          },
+          resolveAndSetHref: function(element, baseUrl, href) {
+            assert.argumentTypes(element, assert.type.any, baseUrl, assert.type.string, href, assert.type.string);
+            throw _abstract();
+          },
+          cssToRules: function(css) {
+            assert.argumentTypes(css, assert.type.string);
             throw _abstract();
           }
         }, {});
@@ -340,11 +358,20 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang"], functio
       Object.defineProperty(DomAdapter.prototype.removeAttribute, "parameters", {get: function() {
           return [[], [assert.type.string]];
         }});
+      Object.defineProperty(DomAdapter.prototype.setTitle, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
       Object.defineProperty(DomAdapter.prototype.elementMatches, "parameters", {get: function() {
           return [[], [assert.type.string]];
         }});
       Object.defineProperty(DomAdapter.prototype.isTemplateElement, "parameters", {get: function() {
           return [[assert.type.any]];
+        }});
+      Object.defineProperty(DomAdapter.prototype.resolveAndSetHref, "parameters", {get: function() {
+          return [[], [assert.type.string], [assert.type.string]];
+        }});
+      Object.defineProperty(DomAdapter.prototype.cssToRules, "parameters", {get: function() {
+          return [[assert.type.string]];
         }});
     }
   };

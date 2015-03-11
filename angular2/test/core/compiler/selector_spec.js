@@ -1,4 +1,4 @@
-System.register(["angular2/test_lib", "angular2/src/core/compiler/selector", "angular2/src/facade/collection"], function($__export) {
+System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/core/compiler/selector", "angular2/src/facade/collection"], function($__export) {
   "use strict";
   var describe,
       it,
@@ -8,6 +8,7 @@ System.register(["angular2/test_lib", "angular2/src/core/compiler/selector", "an
       iit,
       xit,
       el,
+      DOM,
       SelectorMatcher,
       CssSelector,
       List,
@@ -70,7 +71,7 @@ System.register(["angular2/test_lib", "angular2/src/core/compiler/selector", "an
         matcher.addSelectable(s1 = CssSelector.parse('[some-decor]'), 1);
         var elementSelector = new CssSelector();
         var element = el('<div attr></div>');
-        var empty = element.getAttribute('attr');
+        var empty = DOM.getAttribute(element, 'attr');
         elementSelector.addAttribute('some-decor', empty);
         matcher.match(elementSelector, selectableCollector);
         expect(matched).toEqual([s1, 1]);
@@ -154,6 +155,8 @@ System.register(["angular2/test_lib", "angular2/src/core/compiler/selector", "an
       iit = $__m.iit;
       xit = $__m.xit;
       el = $__m.el;
+    }, function($__m) {
+      DOM = $__m.DOM;
     }, function($__m) {
       SelectorMatcher = $__m.SelectorMatcher;
       CssSelector = $__m.CssSelector;

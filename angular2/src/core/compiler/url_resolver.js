@@ -29,8 +29,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
         return ($traceurRuntime.createClass)(UrlResolver, {resolve: function(baseUrl, url) {
             assert.argumentTypes(baseUrl, assert.type.string, url, assert.type.string);
             if (isBlank(baseUrl)) {
-              UrlResolver.a.href = url;
-              return assert.returnType((UrlResolver.a.href), assert.type.string);
+              DOM.resolveAndSetHref(UrlResolver.a, url, null);
+              return assert.returnType((DOM.getHref(UrlResolver.a)), assert.type.string);
             }
             if (isBlank(url) || url == '')
               return assert.returnType((baseUrl), assert.type.string);
@@ -41,8 +41,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             if (isPresent(m[1])) {
               return assert.returnType((url), assert.type.string);
             }
-            UrlResolver.a.href = baseUrl + '/../' + url;
-            return assert.returnType((UrlResolver.a.href), assert.type.string);
+            DOM.resolveAndSetHref(UrlResolver.a, baseUrl, url);
+            return assert.returnType((DOM.getHref(UrlResolver.a)), assert.type.string);
           }}, {});
       }()));
       Object.defineProperty(UrlResolver.prototype.resolve, "parameters", {get: function() {

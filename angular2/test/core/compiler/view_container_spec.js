@@ -47,7 +47,7 @@ System.register(["angular2/test_lib", "angular2/src/core/compiler/view", "angula
         var insertionElement = dom.childNodes[1];
         parentView = createView([dom.childNodes[0]]);
         protoView = new ProtoView(el('<div>hi</div>'), new DynamicProtoChangeDetector(null), new NativeShadowDomStrategy(null));
-        elementInjector = new ElementInjector(null, null, null, null, reflector);
+        elementInjector = new ElementInjector(null, null, null, reflector);
         viewContainer = new ViewContainer(parentView, insertionElement, protoView, elementInjector, null, reflector);
         customViewWithOneNode = createView([el('<div>single</div>')]);
         customViewWithTwoNodes = createView([el('<div>one</div>'), el('<div>two</div>')]);

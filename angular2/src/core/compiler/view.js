@@ -5,6 +5,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       Promise,
       ListWrapper,
       MapWrapper,
+      Map,
       StringMapWrapper,
       List,
       AST,
@@ -56,6 +57,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
     }, function($__m) {
       ListWrapper = $__m.ListWrapper;
       MapWrapper = $__m.MapWrapper;
+      Map = $__m.Map;
       StringMapWrapper = $__m.StringMapWrapper;
       List = $__m.List;
     }, function($__m) {
@@ -226,6 +228,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
             }
             this._dehydrateContext();
           },
+          triggerEventHandlers: function(eventName, eventObj, binderIndex) {
+            assert.argumentTypes(eventName, assert.type.string, eventObj, assert.type.any, binderIndex, int);
+            var handlers = this.proto.eventHandlers[binderIndex];
+            if (isBlank(handlers))
+              return ;
+            var handler = StringMapWrapper.get(handlers, eventName);
+            if (isBlank(handler))
+              return ;
+            handler(eventObj, this);
+          },
           onRecordChange: function(directiveMemento, records) {
             assert.argumentTypes(directiveMemento, assert.type.any, records, List);
             this._invokeMementos(records);
@@ -288,6 +300,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       Object.defineProperty(View.prototype.hydrate, "parameters", {get: function() {
           return [[Injector], [ElementInjector], [Object]];
         }});
+      Object.defineProperty(View.prototype.triggerEventHandlers, "parameters", {get: function() {
+          return [[assert.type.string], [], [int]];
+        }});
       Object.defineProperty(View.prototype.onRecordChange, "parameters", {get: function() {
           return [[], [List]];
         }});
@@ -319,6 +334,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
           this.shadowDomStrategy = shadowDomStrategy;
           this._viewPool = new ViewPool(VIEW_POOL_CAPACITY);
           this.stylePromises = [];
+          this.eventHandlers = [];
         };
         return ($traceurRuntime.createClass)(ProtoView, {
           instantiate: function(hostElementInjector, eventManager, reflector) {
@@ -344,8 +360,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
               elementsWithBindingsDynamic = DOM.getElementsByClassName(rootElementClone, NG_BINDING_CLASS);
             }
             var elementsWithBindings = ListWrapper.createFixedSize(elementsWithBindingsDynamic.length);
-            for (var i = 0; i < elementsWithBindingsDynamic.length; ++i) {
-              elementsWithBindings[i] = elementsWithBindingsDynamic[i];
+            for (var binderIdx = 0; binderIdx < elementsWithBindingsDynamic.length; ++binderIdx) {
+              elementsWithBindings[binderIdx] = elementsWithBindingsDynamic[binderIdx];
             }
             var viewNodes;
             if (this.isTemplateElement) {
@@ -361,32 +377,33 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
             var view = new View(this, viewNodes, this.protoChangeDetector, this.protoContextLocals);
             var binders = this.elementBinders;
             var elementInjectors = ListWrapper.createFixedSize(binders.length);
+            var eventHandlers = ListWrapper.createFixedSize(binders.length);
             var rootElementInjectors = [];
             var textNodes = [];
             var elementsWithPropertyBindings = [];
             var preBuiltObjects = ListWrapper.createFixedSize(binders.length);
             var viewContainers = [];
             var componentChildViews = [];
-            for (var i = 0; i < binders.length; i++) {
-              var binder = binders[i];
+            for (var binderIdx = 0; binderIdx < binders.length; binderIdx++) {
+              var binder = binders[binderIdx];
               var element = void 0;
-              if (i === 0 && this.rootBindingOffset === 1) {
+              if (binderIdx === 0 && this.rootBindingOffset === 1) {
                 element = rootElementClone;
               } else {
-                element = elementsWithBindings[i - this.rootBindingOffset];
+                element = elementsWithBindings[binderIdx - this.rootBindingOffset];
               }
               var elementInjector = null;
               var protoElementInjector = binder.protoElementInjector;
               if (isPresent(protoElementInjector)) {
                 if (isPresent(protoElementInjector.parent)) {
                   var parentElementInjector = elementInjectors[protoElementInjector.parent.index];
-                  elementInjector = protoElementInjector.instantiate(parentElementInjector, null, binder.events, reflector);
+                  elementInjector = protoElementInjector.instantiate(parentElementInjector, null, reflector);
                 } else {
-                  elementInjector = protoElementInjector.instantiate(null, hostElementInjector, binder.events, reflector);
+                  elementInjector = protoElementInjector.instantiate(null, hostElementInjector, reflector);
                   ListWrapper.push(rootElementInjectors, elementInjector);
                 }
               }
-              elementInjectors[i] = elementInjector;
+              elementInjectors[binderIdx] = elementInjector;
               if (binder.hasElementPropertyBindings) {
                 ListWrapper.push(elementsWithPropertyBindings, element);
               }
@@ -419,17 +436,22 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
                 ListWrapper.push(viewContainers, viewContainer);
               }
               if (isPresent(elementInjector)) {
-                preBuiltObjects[i] = new PreBuiltObjects(view, new NgElement(element), viewContainer, lightDom, bindingPropagationConfig);
+                preBuiltObjects[binderIdx] = new PreBuiltObjects(view, new NgElement(element), viewContainer, lightDom, bindingPropagationConfig);
               }
               if (isPresent(binder.events)) {
-                MapWrapper.forEach(binder.events, (function(expr, eventName) {
+                eventHandlers[binderIdx] = StringMapWrapper.create();
+                StringMapWrapper.forEach(binder.events, (function(eventMap, eventName) {
+                  var handler = ProtoView.buildEventHandler(eventMap, binderIdx);
+                  StringMapWrapper.set(eventHandlers[binderIdx], eventName, handler);
                   if (isBlank(elementInjector) || !elementInjector.hasEventEmitter(eventName)) {
-                    var handler = ProtoView.buildInnerCallback(expr, view);
-                    eventManager.addEventListener(element, eventName, handler);
+                    eventManager.addEventListener(element, eventName, (function(event) {
+                      handler(event, view);
+                    }));
                   }
                 }));
               }
             }
+            this.eventHandlers = eventHandlers;
             view.init(elementInjectors, rootElementInjectors, textNodes, elementsWithPropertyBindings, viewContainers, preBuiltObjects, componentChildViews);
             return assert.returnType((view), View);
           },
@@ -476,12 +498,20 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
             this.protoChangeDetector.addAst(expression, memento);
           },
           bindEvent: function(eventName, expression) {
-            assert.argumentTypes(eventName, assert.type.string, expression, AST);
+            var directiveIndex = arguments[2] !== (void 0) ? arguments[2] : -1;
+            assert.argumentTypes(eventName, assert.type.string, expression, AST, directiveIndex, int);
             var elBinder = this.elementBinders[this.elementBinders.length - 1];
-            if (isBlank(elBinder.events)) {
-              elBinder.events = MapWrapper.create();
+            var events = elBinder.events;
+            if (isBlank(events)) {
+              events = StringMapWrapper.create();
+              elBinder.events = events;
             }
-            MapWrapper.set(elBinder.events, eventName, expression);
+            var event = StringMapWrapper.get(events, eventName);
+            if (isBlank(event)) {
+              event = MapWrapper.create();
+              StringMapWrapper.set(events, eventName, event);
+            }
+            MapWrapper.set(event, directiveIndex, expression);
           },
           bindDirectiveProperty: function(directiveIndex, expression, setterName, setter) {
             assert.argumentTypes(directiveIndex, assert.type.number, expression, AST, setterName, assert.type.string, setter, SetterFn);
@@ -490,14 +520,21 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
             this.protoChangeDetector.addAst(expression, bindingMemento, directiveMemento);
           }
         }, {
-          buildInnerCallback: function(expr, view) {
-            assert.argumentTypes(expr, AST, view, View);
+          buildEventHandler: function(eventMap, injectorIdx) {
+            assert.argumentTypes(eventMap, Map, injectorIdx, int);
             var locals = MapWrapper.create();
-            return (function(event) {
+            return (function(event, view) {
               if (view.hydrated()) {
                 MapWrapper.set(locals, '$event', event);
-                var context = new ContextWithVariableBindings(view.context, locals);
-                expr.eval(context);
+                MapWrapper.forEach(eventMap, (function(expr, directiveIndex) {
+                  var context;
+                  if (directiveIndex === -1) {
+                    context = view.context;
+                  } else {
+                    context = view.elementInjectors[injectorIdx].getDirectiveAtIndex(directiveIndex);
+                  }
+                  expr.eval(new ContextWithVariableBindings(context, locals));
+                }));
               }
             });
           },
@@ -530,8 +567,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       Object.defineProperty(ProtoView.prototype.returnToPool, "parameters", {get: function() {
           return [[View]];
         }});
-      Object.defineProperty(ProtoView.buildInnerCallback, "parameters", {get: function() {
-          return [[AST], [View]];
+      Object.defineProperty(ProtoView.buildEventHandler, "parameters", {get: function() {
+          return [[Map], [int]];
         }});
       Object.defineProperty(ProtoView.prototype._directParentElementLightDom, "parameters", {get: function() {
           return [[ProtoElementInjector], [List]];
@@ -549,7 +586,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
           return [[AST], [assert.type.string], [SetterFn]];
         }});
       Object.defineProperty(ProtoView.prototype.bindEvent, "parameters", {get: function() {
-          return [[assert.type.string], [AST]];
+          return [[assert.type.string], [AST], [int]];
         }});
       Object.defineProperty(ProtoView.prototype.bindDirectiveProperty, "parameters", {get: function() {
           return [[assert.type.number], [AST], [assert.type.string], [SetterFn]];

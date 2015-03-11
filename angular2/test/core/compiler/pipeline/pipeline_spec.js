@@ -92,7 +92,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
           var resultLog = [];
           var newChild = new CompileElement(el('<div id="3"></div>'));
           var pipeline = new CompilePipeline([new MockStep((function(parent, current, control) {
-            if (StringWrapper.equals(current.element.id, '1')) {
+            if (StringWrapper.equals(DOM.getAttribute(current.element, 'id'), '1')) {
               control.addChild(newChild);
             }
           })), createLoggerStep(resultLog)]);
@@ -107,9 +107,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
   function logEntry(log, parent, current) {
     var parentId = '';
     if (isPresent(parent)) {
-      parentId = parent.element.getAttribute('id') + '<';
+      parentId = DOM.getAttribute(parent.element, 'id') + '<';
     }
-    ListWrapper.push(log, parentId + current.element.getAttribute('id'));
+    ListWrapper.push(log, parentId + DOM.getAttribute(current.element, 'id'));
   }
   function createLoggerStep(log) {
     return new MockStep((function(parent, current, control) {
@@ -119,7 +119,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
   function createWrapperStep(wrapperId, log) {
     var nextElementId = 0;
     return new MockStep((function(parent, current, control) {
-      var parentCountStr = current.element.getAttribute(wrapperId);
+      var parentCountStr = DOM.getAttribute(current.element, wrapperId);
       if (isPresent(parentCountStr)) {
         var parentCount = NumberWrapper.parseInt(parentCountStr, 10);
         while (parentCount > 0) {

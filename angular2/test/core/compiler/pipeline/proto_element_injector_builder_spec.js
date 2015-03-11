@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/core/compiler/pipeline/proto_element_injector_builder", "angular2/src/core/compiler/pipeline/compile_pipeline", "angular2/src/core/compiler/pipeline/compile_element", "angular2/src/core/compiler/pipeline/compile_step", "angular2/src/core/compiler/pipeline/compile_control", "angular2/src/core/compiler/view", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/annotations/annotations", "angular2/src/core/compiler/element_injector"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/src/core/compiler/pipeline/proto_element_injector_builder", "angular2/src/core/compiler/pipeline/compile_pipeline", "angular2/src/core/compiler/pipeline/compile_element", "angular2/src/core/compiler/pipeline/compile_step", "angular2/src/core/compiler/pipeline/compile_control", "angular2/src/core/compiler/view", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/annotations/annotations", "angular2/src/core/compiler/element_injector"], function($__export) {
   "use strict";
   var assert,
       describe,
@@ -10,6 +10,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       el,
       isPresent,
       isBlank,
+      DOM,
       List,
       ListWrapper,
       MapWrapper,
@@ -49,16 +50,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
         }
         var reader = new DirectiveMetadataReader();
         return new CompilePipeline([new MockStep((function(parent, current, control) {
-          if (isPresent(current.element.getAttribute('viewroot'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'viewroot'))) {
             current.isViewRoot = true;
           }
-          if (isPresent(current.element.getAttribute('directives'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'directives'))) {
             for (var i = 0; i < directives.length; i++) {
               var dirMetadata = reader.read(directives[i]);
               current.addDirective(dirMetadata);
             }
           }
-          if (isPresent(current.element.getAttribute('var-name'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'var-name'))) {
             current.variableBindings = MapWrapper.create();
             MapWrapper.set(current.variableBindings, '\$implicit', 'name');
           }
@@ -175,6 +176,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
     }, function($__m) {
       isPresent = $__m.isPresent;
       isBlank = $__m.isBlank;
+    }, function($__m) {
+      DOM = $__m.DOM;
     }, function($__m) {
       List = $__m.List;
       ListWrapper = $__m.ListWrapper;

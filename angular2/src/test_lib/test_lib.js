@@ -1,6 +1,7 @@
 System.register(["angular2/src/dom/dom_adapter", "rtts_assert/rtts_assert"], function($__export) {
   "use strict";
   var DOM,
+      _global,
       describe,
       xdescribe,
       ddescribe,
@@ -11,25 +12,60 @@ System.register(["angular2/src/dom/dom_adapter", "rtts_assert/rtts_assert"], fun
       afterEach,
       expect,
       IS_DARTIUM,
+      IS_NODEJS,
       SpyObject;
   function elementText(n) {
-    var hasNodes = (function(n) {
-      var children = DOM.childNodes(n);
-      return children && children.length > 0;
-    });
-    if (n instanceof Comment)
-      return '';
-    if (n instanceof Array)
-      return n.map((function(nn) {
-        return elementText(nn);
-      })).join("");
-    if (n instanceof Element && DOM.tagName(n) == 'CONTENT')
-      return elementText(Array.prototype.slice.apply(n.getDistributedNodes()));
-    if (DOM.hasShadowRoot(n))
-      return elementText(DOM.childNodesAsList(n.shadowRoot));
-    if (hasNodes(n))
-      return elementText(DOM.childNodesAsList(n));
-    return n.textContent;
+    if (!IS_NODEJS) {
+      var hasNodes = (function(n) {
+        var children = DOM.childNodes(n);
+        return children && children.length > 0;
+      });
+      if (n instanceof Comment)
+        return '';
+      if (n instanceof Array)
+        return n.map((function(nn) {
+          return elementText(nn);
+        })).join("");
+      if (n instanceof Element && DOM.tagName(n) == 'CONTENT')
+        return elementText(Array.prototype.slice.apply(n.getDistributedNodes()));
+      if (DOM.hasShadowRoot(n))
+        return elementText(DOM.childNodesAsList(n.shadowRoot));
+      if (hasNodes(n))
+        return elementText(DOM.childNodesAsList(n));
+      return n.textContent;
+    } else {
+      if (DOM.hasShadowRoot(n)) {
+        return elementText(DOM.getShadowRoot(n).childNodes);
+      } else if (n instanceof Array) {
+        return n.map((function(nn) {
+          return elementText(nn);
+        })).join("");
+      } else if (DOM.tagName(n) == 'content') {
+        var host = null;
+        var temp = n;
+        while (temp.parent) {
+          if (DOM.hasShadowRoot(temp)) {
+            host = temp;
+          }
+          temp = temp.parent;
+        }
+        if (host) {
+          var list = [];
+          var select = DOM.getAttribute(n, "select");
+          var selectClass = select ? select.substring(1) : null;
+          DOM.childNodes(host).forEach((function(child) {
+            var classList = DOM.classList(child);
+            if (selectClass && classList.indexOf(selectClass) > -1 || selectClass == null && classList.length == 0) {
+              list.push(child);
+            }
+          }));
+          return list.length > 0 ? elementText(list) : "";
+        }
+        return "";
+      } else {
+        return DOM.getText(n);
+      }
+    }
   }
   return {
     setters: [function($__m) {
@@ -38,24 +74,26 @@ System.register(["angular2/src/dom/dom_adapter", "rtts_assert/rtts_assert"], fun
       $__export("proxy", $__m.proxy);
     }],
     execute: function() {
-      describe = $__export("describe", window.describe);
-      xdescribe = $__export("xdescribe", window.xdescribe);
-      ddescribe = $__export("ddescribe", window.ddescribe);
-      it = $__export("it", window.it);
-      xit = $__export("xit", window.xit);
-      iit = $__export("iit", window.iit);
-      beforeEach = $__export("beforeEach", window.beforeEach);
-      afterEach = $__export("afterEach", window.afterEach);
-      expect = $__export("expect", window.expect);
+      _global = typeof window === 'undefined' ? global : window;
+      describe = $__export("describe", _global.describe);
+      xdescribe = $__export("xdescribe", _global.xdescribe);
+      ddescribe = $__export("ddescribe", _global.ddescribe);
+      it = $__export("it", _global.it);
+      xit = $__export("xit", _global.xit);
+      iit = $__export("iit", _global.iit);
+      beforeEach = $__export("beforeEach", _global.beforeEach);
+      afterEach = $__export("afterEach", _global.afterEach);
+      expect = $__export("expect", _global.expect);
       IS_DARTIUM = $__export("IS_DARTIUM", false);
-      window.print = function(msg) {
-        if (window.dump) {
-          window.dump(msg);
+      IS_NODEJS = $__export("IS_NODEJS", typeof window === 'undefined');
+      _global.print = function(msg) {
+        if (_global.dump) {
+          _global.dump(msg);
         } else {
-          window.console.log(msg);
+          _global.console.log(msg);
         }
       };
-      window.Map.prototype.jasmineToString = function() {
+      _global.Map.prototype.jasmineToString = function() {
         var m = this;
         if (!m) {
           return '' + m;
@@ -66,7 +104,7 @@ System.register(["angular2/src/dom/dom_adapter", "rtts_assert/rtts_assert"], fun
         }));
         return ("{ " + res.join(',') + " }");
       };
-      window.beforeEach(function() {
+      _global.beforeEach(function() {
         jasmine.addMatchers({
           toEqual: function(util, customEqualityTesters) {
             return {compare: function(actual, expected) {

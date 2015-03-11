@@ -13,6 +13,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       DOM,
       ListWrapper,
       MapWrapper,
+      Map,
+      StringMap,
+      StringMapWrapper,
       ElementBinderBuilder,
       CompilePipeline,
       CompileElement,
@@ -36,6 +39,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       Injector,
       SomeDecoratorDirective,
       SomeDecoratorDirectiveWithBinding,
+      SomeDecoratorWithEvent,
       SomeDecoratorDirectiveWith2Bindings,
       SomeViewportDirective,
       SomeViewportDirectiveWithBinding,
@@ -63,13 +67,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
         var parser = new Parser(new Lexer());
         return new CompilePipeline([new MockStep((function(parent, current, control) {
           var hasBinding = false;
-          if (isPresent(current.element.getAttribute('text-binding'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'text-binding'))) {
             MapWrapper.forEach(textNodeBindings, (function(v, k) {
               current.addTextNodeBinding(k, parser.parseBinding(v, null));
             }));
             hasBinding = true;
           }
-          if (isPresent(current.element.getAttribute('prop-binding'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'prop-binding'))) {
             if (isPresent(propertyBindings)) {
               MapWrapper.forEach(propertyBindings, (function(v, k) {
                 current.addPropertyBinding(k, parser.parseBinding(v, null));
@@ -77,13 +81,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
             }
             hasBinding = true;
           }
-          if (isPresent(current.element.getAttribute('event-binding'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'event-binding'))) {
             MapWrapper.forEach(eventBindings, (function(v, k) {
               current.addEventBinding(k, parser.parseAction(v, null));
             }));
             hasBinding = true;
           }
-          if (isPresent(current.element.getAttribute('directives'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'directives'))) {
             hasBinding = true;
             for (var i = 0; i < directives.length; i++) {
               var dirMetadata = reflector.read(directives[i]);
@@ -94,10 +98,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
             current.hasBindings = true;
             DOM.addClass(current.element, 'ng-binding');
           }
-          if (isPresent(protoElementInjector) && (isPresent(current.element.getAttribute('text-binding')) || isPresent(current.element.getAttribute('prop-binding')) || isPresent(current.element.getAttribute('directives')) || isPresent(current.element.getAttribute('event-binding')))) {
+          if (isPresent(protoElementInjector) && (isPresent(DOM.getAttribute(current.element, 'text-binding')) || isPresent(DOM.getAttribute(current.element, 'prop-binding')) || isPresent(DOM.getAttribute(current.element, 'directives')) || isPresent(DOM.getAttribute(current.element, 'event-binding')))) {
             current.inheritedProtoElementInjector = protoElementInjector;
           }
-          if (isPresent(current.element.getAttribute('viewroot'))) {
+          if (isPresent(DOM.getAttribute(current.element, 'viewroot'))) {
             current.isViewRoot = true;
             current.inheritedProtoView = new ProtoView(current.element, new DynamicProtoChangeDetector(normalizeBlank(registry)), new NativeShadowDomStrategy(null));
           } else if (isPresent(parent)) {
@@ -300,10 +304,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
         instantiateView(pv);
         evalContext.prop1 = 'red';
         changeDetector.detectChanges();
-        expect(view.nodes[0].style.color).toEqual('red');
+        expect(DOM.getStyle(view.nodes[0], 'color')).toEqual('red');
         evalContext.prop1 = 'blue';
         changeDetector.detectChanges();
-        expect(view.nodes[0].style.color).toEqual('blue');
+        expect(DOM.getStyle(view.nodes[0], 'color')).toEqual('blue');
       }));
       it('should bind style with a dot and suffix', (function() {
         var propertyBindings = MapWrapper.createFromStringMap({'style.font-size.px': 'prop1'});
@@ -327,8 +331,24 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
         var pipeline = createPipeline({eventBindings: eventBindings});
         var results = pipeline.process(el('<div viewroot event-binding></div>'));
         var pv = results[0].inheritedProtoView;
-        var ast = MapWrapper.get(pv.elementBinders[0].events, 'event1');
+        var eventMap = StringMapWrapper.get(pv.elementBinders[0].events, 'event1');
+        var ast = MapWrapper.get(eventMap, -1);
         expect(ast.eval(null)).toBe(2);
+      }));
+      it('should bind directive events', (function() {
+        var directives = [SomeDecoratorWithEvent];
+        var protoElementInjector = new ProtoElementInjector(null, 0, directives, true);
+        var pipeline = createPipeline({
+          directives: directives,
+          protoElementInjector: protoElementInjector
+        });
+        var results = pipeline.process(el('<div viewroot directives></div>'));
+        var pv = results[0].inheritedProtoView;
+        var directiveEvents = pv.elementBinders[0].events;
+        var eventMap = StringMapWrapper.get(directiveEvents, 'event');
+        var ast = MapWrapper.get(eventMap, 0);
+        var context = new SomeDecoratorWithEvent();
+        expect(ast.eval(context)).toEqual('onEvent() callback');
       }));
       it('should bind directive properties', (function() {
         var propertyBindings = MapWrapper.createFromStringMap({
@@ -440,6 +460,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
     }, function($__m) {
       ListWrapper = $__m.ListWrapper;
       MapWrapper = $__m.MapWrapper;
+      Map = $__m.Map;
+      StringMap = $__m.StringMap;
+      StringMapWrapper = $__m.StringMapWrapper;
     }, function($__m) {
       ElementBinderBuilder = $__m.ElementBinderBuilder;
     }, function($__m) {
@@ -491,6 +514,17 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       }());
       Object.defineProperty(SomeDecoratorDirectiveWithBinding, "annotations", {get: function() {
           return [new Decorator({bind: {'decorProp': 'boundprop1'}})];
+        }});
+      SomeDecoratorWithEvent = (function() {
+        var SomeDecoratorWithEvent = function SomeDecoratorWithEvent() {
+          this.$event = 'onEvent';
+        };
+        return ($traceurRuntime.createClass)(SomeDecoratorWithEvent, {onEvent: function(event) {
+            return (event + "() callback");
+          }}, {});
+      }());
+      Object.defineProperty(SomeDecoratorWithEvent, "annotations", {get: function() {
+          return [new Decorator({events: {'event': 'onEvent($event)'}})];
         }});
       SomeDecoratorDirectiveWith2Bindings = (function() {
         var SomeDecoratorDirectiveWith2Bindings = function SomeDecoratorDirectiveWith2Bindings() {

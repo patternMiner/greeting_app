@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/core/compiler/element_injector", "angular2/src/core/annotations/visibility", "angular2/src/core/annotations/di", "angular2/src/core/annotations/annotations", "angular2/di", "angular2/src/core/compiler/view", "angular2/src/core/compiler/view_container", "angular2/src/core/dom/element", "angular2/src/core/compiler/shadow_dom_emulation/light_dom", "angular2/src/core/compiler/binding_propagation_config", "angular2/src/reflection/reflection"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/core/compiler/element_injector", "angular2/src/core/annotations/visibility", "angular2/src/core/annotations/di", "angular2/src/core/annotations/annotations", "angular2/di", "angular2/src/core/compiler/view", "angular2/src/core/compiler/view_container", "angular2/src/core/dom/element", "angular2/src/core/compiler/shadow_dom_emulation/light_dom", "angular2/src/core/compiler/binding_propagation_config", "angular2/src/reflection/reflection", "angular2/change_detection"], function($__export) {
   "use strict";
   var assert,
       describe,
@@ -19,6 +19,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       ListWrapper,
       MapWrapper,
       List,
+      StringMapWrapper,
       ProtoElementInjector,
       PreBuiltObjects,
       DirectiveBinding,
@@ -31,6 +32,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       Injector,
       Inject,
       bind,
+      ProtoView,
       View,
       ViewContainer,
       NgElement,
@@ -40,6 +42,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       Directive,
       BindingPropagationConfig,
       reflector,
+      DynamicProtoChangeDetector,
       DummyView,
       DummyLightDom,
       SimpleDirective,
@@ -80,7 +83,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       if (isBlank(lightDomAppInjector))
         lightDomAppInjector = new Injector([]);
       var proto = new ProtoElementInjector(null, 0, bindings, isPresent(shadowDomAppInjector));
-      var inj = proto.instantiate(null, null, null, reflector);
+      var inj = proto.instantiate(null, null, reflector);
       var preBuilt = isPresent(preBuiltObjects) ? preBuiltObjects : defaultPreBuiltObjects;
       inj.instantiateDirectives(lightDomAppInjector, shadowDomAppInjector, preBuilt);
       return inj;
@@ -91,10 +94,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
         parentPreBuildObjects = defaultPreBuiltObjects;
       var inj = new Injector([]);
       var protoParent = new ProtoElementInjector(null, 0, parentBindings);
-      var parent = protoParent.instantiate(null, null, null, reflector);
+      var parent = protoParent.instantiate(null, null, reflector);
       parent.instantiateDirectives(inj, null, parentPreBuildObjects);
       var protoChild = new ProtoElementInjector(protoParent, 1, childBindings, false, 1);
-      var child = protoChild.instantiate(parent, null, null, reflector);
+      var child = protoChild.instantiate(parent, null, reflector);
       child.instantiateDirectives(inj, null, defaultPreBuiltObjects);
       return child;
     }
@@ -105,10 +108,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       var inj = new Injector([]);
       var shadowInj = inj.createChild([]);
       var protoParent = new ProtoElementInjector(null, 0, hostBindings, true);
-      var host = protoParent.instantiate(null, null, null, reflector);
+      var host = protoParent.instantiate(null, null, reflector);
       host.instantiateDirectives(inj, shadowInj, hostPreBuildObjects);
       var protoChild = new ProtoElementInjector(protoParent, 0, shadowBindings, false, 1);
-      var shadow = protoChild.instantiate(null, host, null, reflector);
+      var shadow = protoChild.instantiate(null, host, reflector);
       shadow.instantiateDirectives(shadowInj, null, null);
       return shadow;
     }
@@ -134,9 +137,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
           var protoParent = new ProtoElementInjector(null, 0, []);
           var protoChild1 = new ProtoElementInjector(protoParent, 1, []);
           var protoChild2 = new ProtoElementInjector(protoParent, 2, []);
-          var p = protoParent.instantiate(null, null, null, reflector);
-          var c1 = protoChild1.instantiate(p, null, null, reflector);
-          var c2 = protoChild2.instantiate(p, null, null, reflector);
+          var p = protoParent.instantiate(null, null, reflector);
+          var c1 = protoChild1.instantiate(p, null, reflector);
+          var c2 = protoChild2.instantiate(p, null, reflector);
           expect(humanize(p, [[p, 'parent'], [c1, 'child1'], [c2, 'child2']])).toEqual(["parent", ["child1", "child2"]]);
         });
         describe("direct parent", (function() {
@@ -144,16 +147,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
             var distance = 1;
             var protoParent = new ProtoElementInjector(null, 0, []);
             var protoChild = new ProtoElementInjector(protoParent, 1, [], false, distance);
-            var p = protoParent.instantiate(null, null, null, reflector);
-            var c = protoChild.instantiate(p, null, null, reflector);
+            var p = protoParent.instantiate(null, null, reflector);
+            var c = protoChild.instantiate(p, null, reflector);
             expect(c.directParent()).toEqual(p);
           }));
           it("should return null otherwise", (function() {
             var distance = 2;
             var protoParent = new ProtoElementInjector(null, 0, []);
             var protoChild = new ProtoElementInjector(protoParent, 1, [], false, distance);
-            var p = protoParent.instantiate(null, null, null, reflector);
-            var c = protoChild.instantiate(p, null, null, reflector);
+            var p = protoParent.instantiate(null, null, reflector);
+            var c = protoChild.instantiate(p, null, reflector);
             expect(c.directParent()).toEqual(null);
           }));
         }));
@@ -341,8 +344,18 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       });
       describe('event emitters', (function() {
         it('should be injectable and callable', (function() {
-          var inj = injector([NeedsEventEmitter]);
+          var called = false;
+          var handlers = StringMapWrapper.create();
+          StringMapWrapper.set(handlers, 'click', (function(e, view) {
+            called = true;
+          }));
+          var pv = new ProtoView(null, null, null);
+          pv.eventHandlers = [handlers];
+          var view = new View(pv, null, new DynamicProtoChangeDetector(null), MapWrapper.create());
+          var preBuildObject = new PreBuiltObjects(view, null, null, null, null);
+          var inj = injector([NeedsEventEmitter], null, null, preBuildObject);
           inj.get(NeedsEventEmitter).click();
+          expect(called).toEqual(true);
         }));
         it('should be queryable through hasEventEmitter', (function() {
           var inj = injector([NeedsEventEmitter]);
@@ -387,6 +400,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       ListWrapper = $__m.ListWrapper;
       MapWrapper = $__m.MapWrapper;
       List = $__m.List;
+      StringMapWrapper = $__m.StringMapWrapper;
     }, function($__m) {
       ProtoElementInjector = $__m.ProtoElementInjector;
       PreBuiltObjects = $__m.PreBuiltObjects;
@@ -406,6 +420,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       Inject = $__m.Inject;
       bind = $__m.bind;
     }, function($__m) {
+      ProtoView = $__m.ProtoView;
       View = $__m.View;
     }, function($__m) {
       ViewContainer = $__m.ViewContainer;
@@ -419,6 +434,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       BindingPropagationConfig = $__m.BindingPropagationConfig;
     }, function($__m) {
       reflector = $__m.reflector;
+    }, function($__m) {
+      DynamicProtoChangeDetector = $__m.DynamicProtoChangeDetector;
     }],
     execute: function() {
       DummyView = (function($__super) {

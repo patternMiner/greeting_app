@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/url_resolver", "angular2/src/core/annotations/template", "angular2/src/facade/async", "angular2/src/mock/xhr_mock"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/url_resolver", "angular2/src/core/annotations/template", "angular2/src/facade/async", "angular2/src/mock/xhr_mock"], function($__export) {
   "use strict";
   var assert,
       describe,
@@ -9,6 +9,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
       iit,
       xit,
       el,
+      DOM,
       TemplateLoader,
       UrlResolver,
       Template,
@@ -26,14 +27,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
       }));
       it('should load inline templates synchronously', (function() {
         var template = new Template({inline: 'inline template'});
-        expect(loader.load(template).content).toHaveText('inline template');
+        expect(DOM.content(loader.load(template))).toHaveText('inline template');
       }));
       it('should load templates through XHR', (function(done) {
         xhr.expect('base/foo', 'xhr template');
         var template = new Template({url: '/foo'});
         loader.setBaseUrl(template, 'base');
         loader.load(template).then((function(el) {
-          expect(el.content).toHaveText('xhr template');
+          expect(DOM.content(el)).toHaveText('xhr template');
           done();
         }));
         xhr.flush();
@@ -48,7 +49,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
           return loader.load(template);
         })).then((function(el) {
           expect(el).toBe(firstEl);
-          expect(el.content).toHaveText('xhr template');
+          expect(DOM.content(el)).toHaveText('xhr template');
           done();
         }));
         xhr.flush();
@@ -89,6 +90,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
       iit = $__m.iit;
       xit = $__m.xit;
       el = $__m.el;
+    }, function($__m) {
+      DOM = $__m.DOM;
     }, function($__m) {
       TemplateLoader = $__m.TemplateLoader;
     }, function($__m) {

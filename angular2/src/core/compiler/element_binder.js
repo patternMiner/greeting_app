@@ -4,7 +4,7 @@ System.register(["rtts_assert/rtts_assert", "./element_injector", "./directive_m
       ProtoElementInjector,
       DirectiveMetadata,
       List,
-      Map,
+      StringMap,
       ProtoView,
       ElementBinder;
   return {
@@ -16,7 +16,7 @@ System.register(["rtts_assert/rtts_assert", "./element_injector", "./directive_m
       DirectiveMetadata = $__m.DirectiveMetadata;
     }, function($__m) {
       List = $__m.List;
-      Map = $__m.Map;
+      StringMap = $__m.StringMap;
     }, function($__m) {
       ProtoView = $__m.ProtoView;
     }],

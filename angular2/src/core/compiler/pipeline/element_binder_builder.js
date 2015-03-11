@@ -177,7 +177,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
               if (isPresent(current.eventBindings)) {
                 this._bindEvents(protoView, current);
               }
-              this._bindDirectiveProperties(current.getAllDirectives(), current);
+              var directives = current.getAllDirectives();
+              this._bindDirectiveProperties(directives, current);
+              this._bindDirectiveEvents(directives, current);
             } else if (isPresent(parent)) {
               elementBinder = parent.inheritedElementBinder;
             }
@@ -206,7 +208,11 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
                 setterFn = styleSetterFactory(ListWrapper.get(styleParts, 1), styleSuffix);
               } else {
                 property = $__0._resolvePropertyName(property);
-                if (DOM.hasProperty(compileElement.element, property) || StringWrapper.equals(property, 'innerHtml')) {
+                if (StringWrapper.equals(property, 'innerHTML')) {
+                  setterFn = (function(element, value) {
+                    return DOM.setInnerHTML(element, value);
+                  });
+                } else if (DOM.hasProperty(compileElement.element, property) || StringWrapper.equals(property, 'innerHtml')) {
                   setterFn = reflector.setter(property);
                 }
               }
@@ -220,6 +226,21 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
               protoView.bindEvent(eventName, expression);
             }));
           },
+          _bindDirectiveEvents: function(directives, compileElement) {
+            var $__0 = this;
+            assert.argumentTypes(directives, assert.genericType(List, DirectiveMetadata), compileElement, CompileElement);
+            for (var directiveIndex = 0; directiveIndex < directives.length; directiveIndex++) {
+              var directive = directives[directiveIndex];
+              var annotation = directive.annotation;
+              if (isBlank(annotation.events))
+                continue;
+              var protoView = compileElement.inheritedProtoView;
+              StringMapWrapper.forEach(annotation.events, (function(action, eventName) {
+                var expression = $__0._parser.parseAction(action, compileElement.elementDescription);
+                protoView.bindEvent(eventName, expression, directiveIndex);
+              }));
+            }
+          },
           _bindDirectiveProperties: function(directives, compileElement) {
             var $__0 = this;
             assert.argumentTypes(directives, assert.genericType(List, DirectiveMetadata), compileElement, CompileElement);
@@ -230,9 +251,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
               if (isBlank(annotation.bind))
                 continue;
               StringMapWrapper.forEach(annotation.bind, (function(bindConfig, dirProp) {
-                var bindConfigParts = $__0._splitBindConfig(bindConfig);
-                var elProp = bindConfigParts[0];
-                var pipes = ListWrapper.slice(bindConfigParts, 1, bindConfigParts.length);
+                var pipes = $__0._splitBindConfig(bindConfig);
+                var elProp = ListWrapper.removeAt(pipes, 0);
                 var bindingAst = isPresent(compileElement.propertyBindings) ? MapWrapper.get(compileElement.propertyBindings, elProp) : null;
                 if (isBlank(bindingAst)) {
                   var attributeValue = MapWrapper.get(compileElement.attrs(), elProp);
@@ -248,8 +268,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             }
           },
           _splitBindConfig: function(bindConfig) {
-            var parts = StringWrapper.split(bindConfig, RegExpWrapper.create("\\|"));
-            return ListWrapper.map(parts, (function(s) {
+            return ListWrapper.map(bindConfig.split('|'), (function(s) {
               return s.trim();
             }));
           },
@@ -265,6 +284,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
         }});
       Object.defineProperty(ElementBinderBuilder.prototype.process, "parameters", {get: function() {
           return [[CompileElement], [CompileElement], [CompileControl]];
+        }});
+      Object.defineProperty(ElementBinderBuilder.prototype._bindDirectiveEvents, "parameters", {get: function() {
+          return [[assert.genericType(List, DirectiveMetadata)], [CompileElement]];
         }});
       Object.defineProperty(ElementBinderBuilder.prototype._bindDirectiveProperties, "parameters", {get: function() {
           return [[assert.genericType(List, DirectiveMetadata)], [CompileElement]];

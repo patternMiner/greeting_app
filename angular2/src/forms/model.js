@@ -10,8 +10,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       INVALID,
       AbstractControl,
       Control,
-      ControlGroup,
-      OptionalControl;
+      ControlGroup;
   return {
     setters: [function($__m) {
       assert = $__m.assert;
@@ -35,9 +34,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           this._dirty = true;
         };
         return ($traceurRuntime.createClass)(AbstractControl, {
-          get active() {
-            return assert.returnType((true), assert.type.boolean);
-          },
           get value() {
             this._updateIfNeeded();
             return this._value;
@@ -99,13 +95,30 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
         }});
       ControlGroup = $__export("ControlGroup", (function($__super) {
         var ControlGroup = function ControlGroup(controls) {
-          var validator = arguments[1] !== (void 0) ? arguments[1] : controlGroupValidator;
-          assert.argumentTypes(controls, assert.type.any, validator, Function);
+          var optionals = arguments[1] !== (void 0) ? arguments[1] : null;
+          var validator = arguments[2] !== (void 0) ? arguments[2] : controlGroupValidator;
+          assert.argumentTypes(controls, assert.type.any, optionals, assert.type.any, validator, Function);
           $traceurRuntime.superConstructor(ControlGroup).call(this, validator);
           this.controls = controls;
+          this.optionals = isPresent(optionals) ? optionals : {};
           this._setParentForControls();
         };
         return ($traceurRuntime.createClass)(ControlGroup, {
+          include: function(controlName) {
+            assert.argumentTypes(controlName, assert.type.string);
+            this._dirty = true;
+            StringMapWrapper.set(this.optionals, controlName, true);
+          },
+          exclude: function(controlName) {
+            assert.argumentTypes(controlName, assert.type.string);
+            this._dirty = true;
+            StringMapWrapper.set(this.optionals, controlName, false);
+          },
+          contains: function(controlName) {
+            assert.argumentTypes(controlName, assert.type.string);
+            var c = StringMapWrapper.contains(this.controls, controlName);
+            return c && this._included(controlName);
+          },
           _setParentForControls: function() {
             var $__0 = this;
             StringMapWrapper.forEach(this.controls, (function(control, name) {
@@ -121,9 +134,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             }
           },
           _reduceValue: function() {
+            var $__0 = this;
             var newValue = {};
             StringMapWrapper.forEach(this.controls, (function(control, name) {
-              if (control.active) {
+              if ($__0._included(name)) {
                 newValue[name] = control.value;
               }
             }));
@@ -132,63 +146,28 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
           _controlChanged: function() {
             this._dirty = true;
             this._updateParent();
+          },
+          _included: function(controlName) {
+            assert.argumentTypes(controlName, assert.type.string);
+            var isOptional = StringMapWrapper.contains(this.optionals, controlName);
+            return assert.returnType((!isOptional || StringMapWrapper.get(this.optionals, controlName)), assert.type.boolean);
           }
         }, {}, $__super);
       }(AbstractControl)));
       Object.defineProperty(ControlGroup, "parameters", {get: function() {
-          return [[], [Function]];
+          return [[], [], [Function]];
         }});
-      OptionalControl = $__export("OptionalControl", (function() {
-        var OptionalControl = function OptionalControl(control, cond) {
-          assert.argumentTypes(control, Control, cond, assert.type.boolean);
-          $traceurRuntime.superConstructor(OptionalControl).call(this);
-          this._control = control;
-          this._cond = cond;
-        };
-        return ($traceurRuntime.createClass)(OptionalControl, {
-          get active() {
-            return assert.returnType((this._cond), assert.type.boolean);
-          },
-          get value() {
-            return this._control.value;
-          },
-          get status() {
-            return this._control.status;
-          },
-          get errors() {
-            return this._control.errors;
-          },
-          set validator(v) {
-            this._control.validator = v;
-          },
-          get validator() {
-            return this._control.validator;
-          },
-          set cond(value) {
-            assert.argumentTypes(value, assert.type.boolean);
-            this._cond = value;
-            this._control._updateParent();
-          },
-          get cond() {
-            return assert.returnType((this._cond), assert.type.boolean);
-          },
-          updateValue: function(value) {
-            assert.argumentTypes(value, assert.type.any);
-            this._control.updateValue(value);
-          },
-          setParent: function(parent) {
-            this._control.setParent(parent);
-          }
-        }, {});
-      }()));
-      Object.defineProperty(OptionalControl, "parameters", {get: function() {
-          return [[Control], [assert.type.boolean]];
+      Object.defineProperty(ControlGroup.prototype.include, "parameters", {get: function() {
+          return [[assert.type.string]];
         }});
-      Object.defineProperty(Object.getOwnPropertyDescriptor(OptionalControl.prototype, "cond").set, "parameters", {get: function() {
-          return [[assert.type.boolean]];
+      Object.defineProperty(ControlGroup.prototype.exclude, "parameters", {get: function() {
+          return [[assert.type.string]];
         }});
-      Object.defineProperty(OptionalControl.prototype.updateValue, "parameters", {get: function() {
-          return [[assert.type.any]];
+      Object.defineProperty(ControlGroup.prototype.contains, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      Object.defineProperty(ControlGroup.prototype._included, "parameters", {get: function() {
+          return [[assert.type.string]];
         }});
     }
   };

@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/mock/template_resolver_mock", "angular2/src/core/compiler/binding_propagation_config", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/annotations/visibility", "angular2/src/directives/if", "angular2/src/core/compiler/view_container", "angular2/src/reflection/reflection"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/mock/template_resolver_mock", "angular2/src/core/compiler/binding_propagation_config", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/annotations/visibility", "angular2/src/core/annotations/di", "angular2/src/directives/if", "angular2/src/core/compiler/view_container", "angular2/src/reflection/reflection"], function($__export) {
   "use strict";
   var assert,
       describe,
@@ -40,6 +40,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       Template,
       Parent,
       Ancestor,
+      EventEmitter,
       If,
       ViewContainer,
       reflector,
@@ -55,7 +56,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       SomeViewport,
       MyService,
       DoublePipe,
-      DoublePipeFactory;
+      DoublePipeFactory,
+      DecoratorEmitingEvent,
+      DecoratorListeningEvent;
   function main() {
     describe('integration tests', function() {
       var compiler,
@@ -282,7 +285,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             expect(view.contextWithLocals).not.toBe(null);
             var value = view.contextWithLocals.get('alice');
             expect(value).not.toBe(null);
-            expect(value.tagName).toEqual('DIV');
+            expect(value.tagName.toLowerCase()).toEqual('div');
             done();
           }));
         }));
@@ -339,6 +342,24 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             var subview = view.viewContainers[0].get(0);
             var childComponent = subview.contextWithLocals.get('child');
             expect(childComponent.myAncestor).toBeAnInstanceOf(SomeDirective);
+            done();
+          }));
+        }));
+        it('should support events', (function(done) {
+          tplResolver.setTemplate(MyComp, new Template({
+            inline: '<div emitter listener></div>',
+            directives: [DecoratorEmitingEvent, DecoratorListeningEvent]
+          }));
+          compiler.compile(MyComp).then((function(pv) {
+            createView(pv);
+            var injector = view.elementInjectors[0];
+            var emitter = injector.get(DecoratorEmitingEvent);
+            var listener = injector.get(DecoratorListeningEvent);
+            expect(emitter.msg).toEqual('');
+            expect(listener.msg).toEqual('');
+            emitter.fireEvent('fired !');
+            expect(emitter.msg).toEqual('fired !');
+            expect(listener.msg).toEqual('fired !');
             done();
           }));
         }));
@@ -433,6 +454,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
     }, function($__m) {
       Parent = $__m.Parent;
       Ancestor = $__m.Ancestor;
+    }, function($__m) {
+      EventEmitter = $__m.EventEmitter;
     }, function($__m) {
       If = $__m.If;
     }, function($__m) {
@@ -616,6 +639,56 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
           }
         }, {});
       }());
+      DecoratorEmitingEvent = (function() {
+        var DecoratorEmitingEvent = function DecoratorEmitingEvent(emitter) {
+          assert.argumentTypes(emitter, Function);
+          this.msg = '';
+          this.emitter = emitter;
+        };
+        return ($traceurRuntime.createClass)(DecoratorEmitingEvent, {
+          fireEvent: function(msg) {
+            assert.argumentTypes(msg, assert.type.string);
+            this.emitter(msg);
+          },
+          onEvent: function(msg) {
+            assert.argumentTypes(msg, assert.type.string);
+            this.msg = msg;
+          }
+        }, {});
+      }());
+      Object.defineProperty(DecoratorEmitingEvent, "annotations", {get: function() {
+          return [new Decorator({
+            selector: '[emitter]',
+            events: {'event': 'onEvent($event)'}
+          })];
+        }});
+      Object.defineProperty(DecoratorEmitingEvent, "parameters", {get: function() {
+          return [[Function, new EventEmitter('event')]];
+        }});
+      Object.defineProperty(DecoratorEmitingEvent.prototype.fireEvent, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      Object.defineProperty(DecoratorEmitingEvent.prototype.onEvent, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      DecoratorListeningEvent = (function() {
+        var DecoratorListeningEvent = function DecoratorListeningEvent() {
+          this.msg = '';
+        };
+        return ($traceurRuntime.createClass)(DecoratorListeningEvent, {onEvent: function(msg) {
+            assert.argumentTypes(msg, assert.type.string);
+            this.msg = msg;
+          }}, {});
+      }());
+      Object.defineProperty(DecoratorListeningEvent, "annotations", {get: function() {
+          return [new Decorator({
+            selector: '[listener]',
+            events: {'event': 'onEvent($event)'}
+          })];
+        }});
+      Object.defineProperty(DecoratorListeningEvent.prototype.onEvent, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
     }
   };
 });

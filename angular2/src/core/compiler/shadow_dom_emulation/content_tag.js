@@ -2,9 +2,7 @@ System.register(["rtts_assert/rtts_assert", "../../annotations/annotations", "./
   "use strict";
   var assert,
       Decorator,
-      SourceLightDom,
-      DestinationLightDom,
-      LightDom,
+      ldModule,
       Inject,
       DOM,
       isPresent,
@@ -21,9 +19,7 @@ System.register(["rtts_assert/rtts_assert", "../../annotations/annotations", "./
     }, function($__m) {
       Decorator = $__m.Decorator;
     }, function($__m) {
-      SourceLightDom = $__m.SourceLightDom;
-      DestinationLightDom = $__m.DestinationLightDom;
-      LightDom = $__m.LightDom;
+      ldModule = $__m;
     }, function($__m) {
       Inject = $__m.Inject;
     }, function($__m) {
@@ -85,7 +81,7 @@ System.register(["rtts_assert/rtts_assert", "../../annotations/annotations", "./
         }});
       IntermediateContent = (function($__super) {
         var IntermediateContent = function IntermediateContent(destinationLightDom) {
-          assert.argumentTypes(destinationLightDom, LightDom);
+          assert.argumentTypes(destinationLightDom, ldModule.LightDom);
           $traceurRuntime.superConstructor(IntermediateContent).call(this);
           this.destinationLightDom = destinationLightDom;
           this.nodes = [];
@@ -97,7 +93,7 @@ System.register(["rtts_assert/rtts_assert", "../../annotations/annotations", "./
           }}, {}, $__super);
       }(ContentStrategy));
       Object.defineProperty(IntermediateContent, "parameters", {get: function() {
-          return [[LightDom]];
+          return [[ldModule.LightDom]];
         }});
       Object.defineProperty(IntermediateContent.prototype.insert, "parameters", {get: function() {
           return [[List]];
@@ -122,7 +118,7 @@ System.register(["rtts_assert/rtts_assert", "../../annotations/annotations", "./
           return [new Decorator({selector: 'content'})];
         }});
       Object.defineProperty(Content, "parameters", {get: function() {
-          return [[new Inject(DestinationLightDom)], [NgElement]];
+          return [[new Inject(ldModule.DestinationLightDom)], [NgElement]];
         }});
       Object.defineProperty(Content.prototype.insert, "parameters", {get: function() {
           return [[List]];

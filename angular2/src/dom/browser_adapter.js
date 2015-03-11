@@ -1,12 +1,12 @@
-System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "angular2/src/facade/lang", "./dom_adapter"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "angular2/src/facade/lang", "./dom_adapter", "./generic_browser_adapter"], function($__export) {
   "use strict";
   var assert,
       List,
       MapWrapper,
       ListWrapper,
       isPresent,
-      DomAdapter,
       setRootDomAdapter,
+      GenericBrowserDomAdapter,
       _attrToPropMap,
       BrowserDomAdapter;
   return {
@@ -19,8 +19,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
     }, function($__m) {
       isPresent = $__m.isPresent;
     }, function($__m) {
-      DomAdapter = $__m.DomAdapter;
       setRootDomAdapter = $__m.setRootDomAdapter;
+    }, function($__m) {
+      GenericBrowserDomAdapter = $__m.GenericBrowserDomAdapter;
     }],
     execute: function() {
       _attrToPropMap = {
@@ -265,6 +266,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
           defaultDoc: function() {
             return document;
           },
+          getTitle: function() {
+            return document.title;
+          },
+          setTitle: function(newTitle) {
+            assert.argumentTypes(newTitle, assert.type.string);
+            document.title = newTitle;
+          },
           elementMatches: function(n, selector) {
             assert.argumentTypes(n, assert.type.any, selector, assert.type.string);
             return assert.returnType((n instanceof HTMLElement && n.matches(selector)), assert.type.boolean);
@@ -310,11 +318,15 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
           },
           isKeyframesRule: function(rule) {
             return assert.returnType((rule.type === CSSRule.KEYFRAMES_RULE), assert.type.boolean);
+          },
+          getHref: function(el) {
+            assert.argumentTypes(el, Element);
+            return assert.returnType((el.href), assert.type.string);
           }
         }, {makeCurrent: function() {
             setRootDomAdapter(new BrowserDomAdapter());
           }}, $__super);
-      }(DomAdapter)));
+      }(GenericBrowserDomAdapter)));
       Object.defineProperty(BrowserDomAdapter.prototype.query, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
@@ -399,6 +411,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       Object.defineProperty(BrowserDomAdapter.prototype.removeAttribute, "parameters", {get: function() {
           return [[], [assert.type.string]];
         }});
+      Object.defineProperty(BrowserDomAdapter.prototype.setTitle, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
       Object.defineProperty(BrowserDomAdapter.prototype.elementMatches, "parameters", {get: function() {
           return [[], [assert.type.string]];
         }});
@@ -416,6 +431,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
         }});
       Object.defineProperty(BrowserDomAdapter.prototype.importIntoDoc, "parameters", {get: function() {
           return [[Node]];
+        }});
+      Object.defineProperty(BrowserDomAdapter.prototype.getHref, "parameters", {get: function() {
+          return [[Element]];
         }});
     }
   };

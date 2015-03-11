@@ -9,6 +9,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
       iit,
       SpyObject,
       el,
+      IS_NODEJS,
       ShadowCss,
       RegExpWrapper,
       StringWrapper;
@@ -90,12 +91,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         css = s('polyfill-unscoped-rule {content: "#menu > .bar";background: blue;}', 'a');
         expect(StringWrapper.contains(css, '#menu > .bar {;background: blue;}')).toBeTruthy();
       }));
-      it('should support polyfill-rule', (function() {
-        var css = s("polyfill-rule {content: ':host.foo .bar';background: blue;}", 'a', 'a-host');
-        expect(css).toEqual('[a-host].foo .bar {background: blue;}');
-        css = s('polyfill-rule {content: ":host.foo .bar";background: blue;}', 'a', 'a-host');
-        expect(css).toEqual('[a-host].foo .bar {background: blue;}');
-      }));
+      if (!IS_NODEJS) {
+        it('should support polyfill-rule', (function() {
+          var css = s("polyfill-rule {content: ':host.foo .bar';background: blue;}", 'a', 'a-host');
+          expect(css).toEqual('[a-host].foo .bar {background: blue;}');
+          css = s('polyfill-rule {content: ":host.foo .bar";background: blue;}', 'a', 'a-host');
+          expect(css).toEqual('[a-host].foo .bar {background: blue;}');
+        }));
+      }
       it('should handle ::shadow', (function() {
         var css = s('x::shadow > y {}', 'a');
         expect(css).toEqual('x[a] > y[a] {}');
@@ -119,6 +122,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
       iit = $__m.iit;
       SpyObject = $__m.SpyObject;
       el = $__m.el;
+      IS_NODEJS = $__m.IS_NODEJS;
     }, function($__m) {
       ShadowCss = $__m.ShadowCss;
     }, function($__m) {
