@@ -148,7 +148,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
             MapWrapper.set(this.textNodeBindings, indexInParent, expression);
           },
           addPropertyBinding: function(property, expression) {
-            assert.argumentTypes(property, assert.type.string, expression, AST);
             if (isBlank(this.propertyBindings)) {
               this.propertyBindings = MapWrapper.create();
             }

@@ -15,7 +15,7 @@ export class GreetingApp {
   name: string;
   btnLabel: string;
 
-  constructor(service: GreetingService) {
+  constructor(service : GreetingService) {
     this.greeting = service.greeting;
     this.name = service.name;
     this.btnLabel = service.btnLabel;
@@ -26,6 +26,6 @@ export class GreetingApp {
   }
 
   changeName(newName: string) {
-    this.name = newName == '' ? 'World' : newName;
+  this.name = newName == '' ? 'World' : newName;
   }
 }
