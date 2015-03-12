@@ -179,7 +179,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
               var componentDirective = binders[i].componentDirective;
               var shadowDomAppInjector = null;
               if (isPresent(componentDirective)) {
-                var services = componentDirective.annotation.componentServices;
+                var services = componentDirective.annotation.services;
                 if (isPresent(services))
                   shadowDomAppInjector = appInjector.createChild(services);
                 else {

@@ -4,7 +4,7 @@ import {RedDec} from '../directives/red_dec';
 
 @Component({
   selector: 'greeting-app',
-  componentServices: [GreetingService]
+  services: [GreetingService]
 })
 @Template({
   url: `greeting_app/components/greeting_app.html`,

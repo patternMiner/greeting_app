@@ -9,6 +9,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       ddescribe,
       iit,
       el,
+      IS_NODEJS,
       StringMapWrapper,
       List,
       Type,
@@ -58,11 +59,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       var urlResolver = new UrlResolver();
       var styleUrlResolver = new StyleUrlResolver(urlResolver);
       var styleInliner = new StyleInliner(null, styleUrlResolver, urlResolver);
-      StringMapWrapper.forEach({
-        "native": new NativeShadowDomStrategy(styleUrlResolver),
+      var strategies = {
         "scoped": new EmulatedScopedShadowDomStrategy(styleInliner, styleUrlResolver, DOM.createElement('div')),
         "unscoped": new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, DOM.createElement('div'))
-      }, (function(strategy, name) {
+      };
+      if (!IS_NODEJS) {
+        StringMapWrapper.set(strategies, "native", new NativeShadowDomStrategy(styleUrlResolver));
+      }
+      StringMapWrapper.forEach(strategies, (function(strategy, name) {
         describe((name + " shadow dom strategy"), (function() {
           var compiler,
               tplResolver;
@@ -166,6 +170,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       ddescribe = $__m.ddescribe;
       iit = $__m.iit;
       el = $__m.el;
+      IS_NODEJS = $__m.IS_NODEJS;
     }, function($__m) {
       StringMapWrapper = $__m.StringMapWrapper;
       List = $__m.List;

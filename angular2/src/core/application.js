@@ -35,6 +35,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
       LifeCycle,
       ShadowDomStrategy,
       NativeShadowDomStrategy,
+      EmulatedUnscopedShadowDomStrategy,
       XHR,
       XHRImpl,
       EventManager,
@@ -79,7 +80,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
     }), [ExceptionHandler]), bind(EventManager).toFactory((function(zone) {
       var plugins = [new HammerGesturesPlugin(), new DomEventsPlugin()];
       return new EventManager(plugins, zone);
-    }), [VmTurnZone]), bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy), Compiler, CompilerCache, TemplateResolver, bind(ChangeDetection).toValue(dynamicChangeDetection), TemplateLoader, DirectiveMetadataReader, Parser, Lexer, ExceptionHandler, bind(XHR).toValue(new XHRImpl()), ComponentUrlMapper, UrlResolver, StyleUrlResolver, StyleInliner, bind(CssProcessor).toFactory((function() {
+    }), [VmTurnZone]), bind(ShadowDomStrategy).toFactory((function(styleUrlResolver, doc) {
+      return new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, doc.head);
+    }), [StyleUrlResolver, appDocumentToken]), Compiler, CompilerCache, TemplateResolver, bind(ChangeDetection).toValue(dynamicChangeDetection), TemplateLoader, DirectiveMetadataReader, Parser, Lexer, ExceptionHandler, bind(XHR).toValue(new XHRImpl()), ComponentUrlMapper, UrlResolver, StyleUrlResolver, StyleInliner, bind(CssProcessor).toFactory((function() {
       return new CssProcessor(null);
     }), [])]), assert.genericType(List, Binding));
   }
@@ -178,6 +181,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
     }, function($__m) {
       ShadowDomStrategy = $__m.ShadowDomStrategy;
       NativeShadowDomStrategy = $__m.NativeShadowDomStrategy;
+      EmulatedUnscopedShadowDomStrategy = $__m.EmulatedUnscopedShadowDomStrategy;
     }, function($__m) {
       XHR = $__m.XHR;
     }, function($__m) {

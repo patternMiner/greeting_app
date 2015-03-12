@@ -645,7 +645,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         return ($traceurRuntime.createClass)(SomeComponent, {}, {});
       }());
       Object.defineProperty(SomeComponent, "annotations", {get: function() {
-          return [new Component({componentServices: [SomeService]})];
+          return [new Component({services: [SomeService]})];
         }});
       Object.defineProperty(SomeComponent, "parameters", {get: function() {
           return [[SomeService]];

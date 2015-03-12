@@ -32,11 +32,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
               selector = $__1.selector,
               bind = $__1.bind,
               events = $__1.events,
-              lightDomServices = $__1.lightDomServices,
               implementsTypes = $__1.implementsTypes,
               lifecycle = $__1.lifecycle;
           this.selector = selector;
-          this.lightDomServices = lightDomServices;
           this.implementsTypes = implementsTypes;
           this.bind = bind;
           this.events = events;
@@ -59,21 +57,17 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
               selector = $__1.selector,
               bind = $__1.bind,
               events = $__1.events,
-              lightDomServices = $__1.lightDomServices,
-              shadowDomServices = $__1.shadowDomServices,
-              componentServices = $__1.componentServices,
+              services = $__1.services,
               implementsTypes = $__1.implementsTypes,
               lifecycle = $__1.lifecycle;
           $traceurRuntime.superConstructor(Component).call(this, {
             selector: selector,
             bind: bind,
             events: events,
-            lightDomServices: lightDomServices,
             implementsTypes: implementsTypes,
             lifecycle: lifecycle
           });
-          this.shadowDomServices = shadowDomServices;
-          this.componentServices = componentServices;
+          this.services = services;
         };
         return ($traceurRuntime.createClass)(Component, {}, {}, $__super);
       }(Directive)));
@@ -87,7 +81,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
               selector = $__1.selector,
               bind = $__1.bind,
               events = $__1.events,
-              lightDomServices = $__1.lightDomServices,
               implementsTypes = $__1.implementsTypes,
               lifecycle = $__1.lifecycle,
               compileChildren = ($__2 = $__1.compileChildren) === void 0 ? true : $__2;
@@ -96,7 +89,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
             selector: selector,
             bind: bind,
             events: events,
-            lightDomServices: lightDomServices,
             implementsTypes: implementsTypes,
             lifecycle: lifecycle
           });
@@ -112,14 +104,12 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
               selector = $__1.selector,
               bind = $__1.bind,
               events = $__1.events,
-              lightDomServices = $__1.lightDomServices,
               implementsTypes = $__1.implementsTypes,
               lifecycle = $__1.lifecycle;
           $traceurRuntime.superConstructor(Viewport).call(this, {
             selector: selector,
             bind: bind,
             events: events,
-            lightDomServices: lightDomServices,
             implementsTypes: implementsTypes,
             lifecycle: lifecycle
           });

@@ -264,7 +264,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
         return ($traceurRuntime.createClass)(SomeComponentDirective, {}, {});
       }());
       Object.defineProperty(SomeComponentDirective, "annotations", {get: function() {
-          return [new Component({componentServices: [SomeComponentService]})];
+          return [new Component({services: [SomeComponentService]})];
         }});
       SomeDecoratorDirective = (function() {
         var SomeDecoratorDirective = function SomeDecoratorDirective() {};

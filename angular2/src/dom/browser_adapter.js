@@ -106,7 +106,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
             return assert.returnType((res), List);
           },
           clearNodes: function(el) {
-            el.innerHTML = '';
+            for (var i = 0; i < el.childNodes.length; i++) {
+              this.remove(el.childNodes[i]);
+            }
           },
           appendChild: function(el, node) {
             el.appendChild(node);

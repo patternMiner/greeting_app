@@ -530,7 +530,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       Object.defineProperty(ChildComp, "annotations", {get: function() {
           return [new Component({
             selector: 'child-cmp',
-            componentServices: [MyService]
+            services: [MyService]
           }), new Template({
             directives: [MyDir],
             inline: '{{ctxProp}}'
@@ -589,7 +589,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       Object.defineProperty(ChildComp2, "annotations", {get: function() {
           return [new Component({
             selector: '[child-cmp2]',
-            componentServices: [MyService]
+            services: [MyService]
           })];
         }});
       Object.defineProperty(ChildComp2, "parameters", {get: function() {

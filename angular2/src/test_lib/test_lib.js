@@ -15,11 +15,11 @@ System.register(["angular2/src/dom/dom_adapter", "rtts_assert/rtts_assert"], fun
       IS_NODEJS,
       SpyObject;
   function elementText(n) {
+    var hasNodes = (function(n) {
+      var children = DOM.childNodes(n);
+      return children && children.length > 0;
+    });
     if (!IS_NODEJS) {
-      var hasNodes = (function(n) {
-        var children = DOM.childNodes(n);
-        return children && children.length > 0;
-      });
       if (n instanceof Comment)
         return '';
       if (n instanceof Array)
@@ -34,34 +34,12 @@ System.register(["angular2/src/dom/dom_adapter", "rtts_assert/rtts_assert"], fun
         return elementText(DOM.childNodesAsList(n));
       return n.textContent;
     } else {
-      if (DOM.hasShadowRoot(n)) {
-        return elementText(DOM.getShadowRoot(n).childNodes);
-      } else if (n instanceof Array) {
+      if (n instanceof Array) {
         return n.map((function(nn) {
           return elementText(nn);
         })).join("");
-      } else if (DOM.tagName(n) == 'content') {
-        var host = null;
-        var temp = n;
-        while (temp.parent) {
-          if (DOM.hasShadowRoot(temp)) {
-            host = temp;
-          }
-          temp = temp.parent;
-        }
-        if (host) {
-          var list = [];
-          var select = DOM.getAttribute(n, "select");
-          var selectClass = select ? select.substring(1) : null;
-          DOM.childNodes(host).forEach((function(child) {
-            var classList = DOM.classList(child);
-            if (selectClass && classList.indexOf(selectClass) > -1 || selectClass == null && classList.length == 0) {
-              list.push(child);
-            }
-          }));
-          return list.length > 0 ? elementText(list) : "";
-        }
-        return "";
+      } else if (hasNodes(n)) {
+        return elementText(DOM.childNodesAsList(n));
       } else {
         return DOM.getText(n);
       }
