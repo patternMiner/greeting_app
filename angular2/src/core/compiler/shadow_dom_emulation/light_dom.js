@@ -10,7 +10,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       ElementInjector,
       ViewContainer,
       Content,
-      SourceLightDom,
       DestinationLightDom,
       _Root,
       LightDom;
@@ -52,10 +51,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       Content = $__m.Content;
     }],
     execute: function() {
-      SourceLightDom = $__export("SourceLightDom", (function() {
-        var SourceLightDom = function SourceLightDom() {};
-        return ($traceurRuntime.createClass)(SourceLightDom, {}, {});
-      }()));
       DestinationLightDom = $__export("DestinationLightDom", (function() {
         var DestinationLightDom = function DestinationLightDom() {};
         return ($traceurRuntime.createClass)(DestinationLightDom, {}, {});

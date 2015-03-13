@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/forms"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular2/src/facade/collection", "./model"], function($__export) {
   "use strict";
   var assert,
       isBlank,
@@ -6,20 +6,19 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       List,
       ListWrapper,
       StringMapWrapper,
-      ControlGroup,
-      Control;
+      modelModule;
   function required(c) {
-    assert.argumentTypes(c, Control);
+    assert.argumentTypes(c, modelModule.Control);
     return isBlank(c.value) || c.value == "" ? {"required": true} : null;
   }
   function nullValidator(c) {
-    assert.argumentTypes(c, Control);
+    assert.argumentTypes(c, modelModule.Control);
     return null;
   }
   function compose(validators) {
     assert.argumentTypes(validators, assert.genericType(List, Function));
     return assert.returnType((function(c) {
-      assert.argumentTypes(c, Control);
+      assert.argumentTypes(c, modelModule.Control);
       var res = ListWrapper.reduce(validators, (function(res, validator) {
         var errors = validator(c);
         return isPresent(errors) ? StringMapWrapper.merge(res, errors) : res;
@@ -28,7 +27,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
     }), Function);
   }
   function controlGroupValidator(c) {
-    assert.argumentTypes(c, ControlGroup);
+    assert.argumentTypes(c, modelModule.ControlGroup);
     var res = {};
     StringMapWrapper.forEach(c.controls, (function(control, name) {
       if (c.contains(name) && isPresent(control.errors)) {
@@ -57,21 +56,20 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       ListWrapper = $__m.ListWrapper;
       StringMapWrapper = $__m.StringMapWrapper;
     }, function($__m) {
-      ControlGroup = $__m.ControlGroup;
-      Control = $__m.Control;
+      modelModule = $__m;
     }],
     execute: function() {
       Object.defineProperty(required, "parameters", {get: function() {
-          return [[Control]];
+          return [[modelModule.Control]];
         }});
       Object.defineProperty(nullValidator, "parameters", {get: function() {
-          return [[Control]];
+          return [[modelModule.Control]];
         }});
       Object.defineProperty(compose, "parameters", {get: function() {
           return [[assert.genericType(List, Function)]];
         }});
       Object.defineProperty(controlGroupValidator, "parameters", {get: function() {
-          return [[ControlGroup]];
+          return [[modelModule.ControlGroup]];
         }});
     }
   };

@@ -1,14 +1,16 @@
 System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/mock/xhr_mock", "angular2/src/facade/async", "angular2/src/facade/lang"], function($__export) {
   "use strict";
   var assert,
-      describe,
+      AsyncTestCompleter,
       beforeEach,
-      it,
-      expect,
       ddescribe,
-      iit,
+      describe,
       el,
+      expect,
+      iit,
+      inject,
       IS_DARTIUM,
+      it,
       XHRMock,
       PromiseWrapper,
       Promise,
@@ -53,34 +55,42 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/m
       Object.defineProperty(expectResponse, "parameters", {get: function() {
           return [[Promise], [assert.type.string], [assert.type.string], []];
         }});
-      it('should return a response from the definitions', (function(done) {
+      it('should return a response from the definitions', inject([AsyncTestCompleter], (function(async) {
         var url = '/foo';
         var response = 'bar';
         xhr.when(url, response);
-        expectResponse(xhr.get(url), url, response, done);
+        expectResponse(xhr.get(url), url, response, (function() {
+          return async.done();
+        }));
         xhr.flush();
-      }));
-      it('should return an error from the definitions', (function(done) {
+      })));
+      it('should return an error from the definitions', inject([AsyncTestCompleter], (function(async) {
         var url = '/foo';
         var response = null;
         xhr.when(url, response);
-        expectResponse(xhr.get(url), url, response, done);
+        expectResponse(xhr.get(url), url, response, (function() {
+          return async.done();
+        }));
         xhr.flush();
-      }));
-      it('should return a response from the expectations', (function(done) {
+      })));
+      it('should return a response from the expectations', inject([AsyncTestCompleter], (function(async) {
         var url = '/foo';
         var response = 'bar';
         xhr.expect(url, response);
-        expectResponse(xhr.get(url), url, response, done);
+        expectResponse(xhr.get(url), url, response, (function() {
+          return async.done();
+        }));
         xhr.flush();
-      }));
-      it('should return an error from the expectations', (function(done) {
+      })));
+      it('should return an error from the expectations', inject([AsyncTestCompleter], (function(async) {
         var url = '/foo';
         var response = null;
         xhr.expect(url, response);
-        expectResponse(xhr.get(url), url, response, done);
+        expectResponse(xhr.get(url), url, response, (function() {
+          return async.done();
+        }));
         xhr.flush();
-      }));
+      })));
       it('should not reuse expectations', (function() {
         var url = '/foo';
         var response = 'bar';
@@ -91,14 +101,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/m
           xhr.flush();
         })).toThrowError('Unexpected request /foo');
       }));
-      it('should return expectations before definitions', (function(done) {
+      it('should return expectations before definitions', inject([AsyncTestCompleter], (function(async) {
         var url = '/foo';
         xhr.when(url, 'when');
         xhr.expect(url, 'expect');
         expectResponse(xhr.get(url), url, 'expect');
-        expectResponse(xhr.get(url), url, 'when', done);
+        expectResponse(xhr.get(url), url, 'when', (function() {
+          return async.done();
+        }));
         xhr.flush();
-      }));
+      })));
       it('should throw when there is no definitions or expectations', (function() {
         xhr.get('/foo');
         expect((function() {
@@ -125,14 +137,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/m
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
-      describe = $__m.describe;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
-      it = $__m.it;
-      expect = $__m.expect;
       ddescribe = $__m.ddescribe;
-      iit = $__m.iit;
+      describe = $__m.describe;
       el = $__m.el;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
       IS_DARTIUM = $__m.IS_DARTIUM;
+      it = $__m.it;
     }, function($__m) {
       XHRMock = $__m.XHRMock;
     }, function($__m) {

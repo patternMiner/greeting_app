@@ -25,6 +25,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       DynamicChangeDetector,
       ChangeDetectionError,
       ContextWithVariableBindings,
+      BindingRecord,
       PipeRegistry,
       Pipe,
       NO_CHANGE,
@@ -73,9 +74,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
           var registry = arguments[3] !== (void 0) ? arguments[3] : null;
           assert.argumentTypes(memo, assert.type.string, exp, assert.type.string, context, assert.type.any, registry, assert.type.any);
           var pcd = createProtoChangeDetector(registry);
-          pcd.addAst(ast(exp), memo, memo);
           var dispatcher = new TestDispatcher();
-          var cd = pcd.instantiate(dispatcher);
+          var cd = pcd.instantiate(dispatcher, [new BindingRecord(ast(exp), memo, memo)]);
           cd.hydrate(context);
           return {
             "changeDetector": cd,
@@ -204,9 +204,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
             var parser = new Parser(new Lexer());
             var pcd = createProtoChangeDetector();
             var ast = parser.parseInterpolation("B{{a}}A", "location");
-            pcd.addAst(ast, "memo", "memo");
             var dispatcher = new TestDispatcher();
-            var cd = pcd.instantiate(dispatcher);
+            var cd = pcd.instantiate(dispatcher, [new BindingRecord(ast, "memo", "memo")]);
             cd.hydrate(new TestData("value"));
             cd.detectChanges();
             expect(dispatcher.log).toEqual(["memo=BvalueA"]);
@@ -244,21 +243,15 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
             describe("group changes", (function() {
               it("should notify the dispatcher when a group of records changes", (function() {
                 var pcd = createProtoChangeDetector();
-                pcd.addAst(ast("1 + 2"), "memo", "1");
-                pcd.addAst(ast("10 + 20"), "memo", "1");
-                pcd.addAst(ast("100 + 200"), "memo2", "2");
                 var dispatcher = new TestDispatcher();
-                var cd = pcd.instantiate(dispatcher);
+                var cd = pcd.instantiate(dispatcher, [new BindingRecord(ast("1 + 2"), "memo", "1"), new BindingRecord(ast("10 + 20"), "memo", "1"), new BindingRecord(ast("100 + 200"), "memo", "2")]);
                 cd.detectChanges();
                 expect(dispatcher.loggedValues).toEqual([[3, 30], [300]]);
               }));
               it("should notify the dispatcher before switching to the next group", (function() {
                 var pcd = createProtoChangeDetector();
-                pcd.addAst(ast("a()"), "a", "1");
-                pcd.addAst(ast("b()"), "b", "2");
-                pcd.addAst(ast("c()"), "c", "2");
                 var dispatcher = new TestDispatcher();
-                var cd = pcd.instantiate(dispatcher);
+                var cd = pcd.instantiate(dispatcher, [new BindingRecord(ast("a()"), "a", "1"), new BindingRecord(ast("b()"), "b", "2"), new BindingRecord(ast("c()"), "c", "2")]);
                 var tr = new TestRecord();
                 tr.a = (function() {
                   dispatcher.logValue('InvokeA');
@@ -283,7 +276,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
               var pcd = createProtoChangeDetector();
               pcd.addAst(ast("a"), "a", 1);
               var dispatcher = new TestDispatcher();
-              var cd = pcd.instantiate(dispatcher);
+              var cd = pcd.instantiate(dispatcher, [new BindingRecord(ast("a"), "a", 1)]);
               cd.hydrate(new TestData('value'));
               expect((function() {
                 cd.checkNoChanges();
@@ -293,8 +286,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
           describe("error handling", (function() {
             xit("should wrap exceptions into ChangeDetectionError", (function() {
               var pcd = createProtoChangeDetector();
-              pcd.addAst(ast('invalidProp', 'someComponent'), "a", 1);
-              var cd = pcd.instantiate(new TestDispatcher());
+              var cd = pcd.instantiate(new TestDispatcher(), [new BindingRecord(ast("invalidProp", "someComponent"), "a", 1)]);
               cd.hydrate(null);
               try {
                 cd.detectChanges();
@@ -331,9 +323,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
                 child;
             beforeEach((function() {
               var protoParent = createProtoChangeDetector();
-              parent = protoParent.instantiate(null);
+              parent = protoParent.instantiate(null, []);
               var protoChild = createProtoChangeDetector();
-              child = protoChild.instantiate(null);
+              child = protoChild.instantiate(null, []);
             }));
             it("should add children", (function() {
               parent.addChild(child);
@@ -365,13 +357,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
             expect(dispatcher.log).toEqual([]);
           }));
           it("should change CHECK_ONCE to CHECKED", (function() {
-            var cd = createProtoChangeDetector().instantiate(null);
+            var cd = createProtoChangeDetector().instantiate(null, []);
             cd.mode = CHECK_ONCE;
             cd.detectChanges();
             expect(cd.mode).toEqual(CHECKED);
           }));
           it("should not change the CHECK_ALWAYS", (function() {
-            var cd = createProtoChangeDetector().instantiate(null);
+            var cd = createProtoChangeDetector().instantiate(null, []);
             cd.mode = CHECK_ALWAYS;
             cd.detectChanges();
             expect(cd.mode).toEqual(CHECK_ALWAYS);
@@ -379,7 +371,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
         }));
         describe("markPathToRootAsCheckOnce", (function() {
           function changeDetector(mode, parent) {
-            var cd = createProtoChangeDetector().instantiate(null);
+            var cd = createProtoChangeDetector().instantiate(null, []);
             cd.mode = mode;
             if (isPresent(parent))
               parent.addChild(cd);
@@ -519,6 +511,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       DynamicChangeDetector = $__m.DynamicChangeDetector;
       ChangeDetectionError = $__m.ChangeDetectionError;
       ContextWithVariableBindings = $__m.ContextWithVariableBindings;
+      BindingRecord = $__m.BindingRecord;
       PipeRegistry = $__m.PipeRegistry;
       Pipe = $__m.Pipe;
       NO_CHANGE = $__m.NO_CHANGE;

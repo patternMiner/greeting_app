@@ -4,7 +4,6 @@ System.register(["rtts_assert/rtts_assert", "./exceptions", "angular2/src/facade
       KeyMetadataError,
       MapWrapper,
       Map,
-      FIELD,
       int,
       isPresent,
       Key,
@@ -19,7 +18,6 @@ System.register(["rtts_assert/rtts_assert", "./exceptions", "angular2/src/facade
       MapWrapper = $__m.MapWrapper;
       Map = $__m.Map;
     }, function($__m) {
-      FIELD = $__m.FIELD;
       int = $__m.int;
       isPresent = $__m.isPresent;
     }],

@@ -1,14 +1,16 @@
 System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/url_resolver", "angular2/src/core/annotations/template", "angular2/src/facade/async", "angular2/src/mock/xhr_mock"], function($__export) {
   "use strict";
   var assert,
-      describe,
-      it,
-      expect,
+      AsyncTestCompleter,
       beforeEach,
       ddescribe,
-      iit,
-      xit,
+      describe,
       el,
+      expect,
+      iit,
+      inject,
+      it,
+      xit,
       DOM,
       TemplateLoader,
       UrlResolver,
@@ -29,17 +31,17 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
         var template = new Template({inline: 'inline template'});
         expect(DOM.content(loader.load(template))).toHaveText('inline template');
       }));
-      it('should load templates through XHR', (function(done) {
+      it('should load templates through XHR', inject([AsyncTestCompleter], (function(async) {
         xhr.expect('base/foo', 'xhr template');
         var template = new Template({url: '/foo'});
         loader.setBaseUrl(template, 'base');
         loader.load(template).then((function(el) {
           expect(DOM.content(el)).toHaveText('xhr template');
-          done();
+          async.done();
         }));
         xhr.flush();
-      }));
-      it('should cache template loaded through XHR', (function(done) {
+      })));
+      it('should cache template loaded through XHR', inject([AsyncTestCompleter], (function(async) {
         var firstEl;
         xhr.expect('base/foo', 'xhr template');
         var template = new Template({url: '/foo'});
@@ -50,10 +52,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
         })).then((function(el) {
           expect(el).toBe(firstEl);
           expect(DOM.content(el)).toHaveText('xhr template');
-          done();
+          async.done();
         }));
         xhr.flush();
-      }));
+      })));
       it('should throw when no template is defined', (function() {
         var template = new Template({
           inline: null,
@@ -63,7 +65,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
           return loader.load(template);
         })).toThrowError('Templates should have either their url or inline property set');
       }));
-      it('should return a rejected Promise when xhr loading fails', (function(done) {
+      it('should return a rejected Promise when xhr loading fails', inject([AsyncTestCompleter], (function(async) {
         xhr.expect('base/foo', null);
         var template = new Template({url: '/foo'});
         loader.setBaseUrl(template, 'base');
@@ -71,10 +73,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
           throw 'Unexpected response';
         }, function(error) {
           expect(error).toEqual('Failed to load base/foo');
-          done();
+          async.done();
         });
         xhr.flush();
-      }));
+      })));
     }));
   }
   $__export("main", main);
@@ -82,14 +84,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
-      describe = $__m.describe;
-      it = $__m.it;
-      expect = $__m.expect;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
       ddescribe = $__m.ddescribe;
-      iit = $__m.iit;
-      xit = $__m.xit;
+      describe = $__m.describe;
       el = $__m.el;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
+      it = $__m.it;
+      xit = $__m.xit;
     }, function($__m) {
       DOM = $__m.DOM;
     }, function($__m) {

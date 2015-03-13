@@ -1,14 +1,16 @@
 System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/compiler/template_loader", "angular2/src/core/dom/element", "angular2/src/directives/non_bindable", "angular2/src/mock/template_resolver_mock"], function($__export) {
   "use strict";
   var assert,
-      describe,
-      xit,
-      it,
-      expect,
+      AsyncTestCompleter,
       beforeEach,
       ddescribe,
-      iit,
+      describe,
       el,
+      expect,
+      iit,
+      inject,
+      it,
+      xit,
       DOM,
       Injector,
       Lexer,
@@ -46,7 +48,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       }));
       function createView(pv) {
         component = new TestComponent();
-        view = pv.instantiate(null, null, null);
+        view = pv.instantiate(null, null);
         view.hydrate(new Injector([]), null, component);
         cd = view.changeDetector;
       }
@@ -58,35 +60,35 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
         tplResolver.setTemplate(TestComponent, template);
         return compiler.compile(TestComponent);
       }
-      it('should not interpolate children', (function(done) {
+      it('should not interpolate children', inject([AsyncTestCompleter], (function(async) {
         var template = '<div>{{text}}<span non-bindable>{{text}}</span></div>';
         compileWithTemplate(template).then((function(pv) {
           createView(pv);
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('foo{{text}}');
-          done();
+          async.done();
         }));
-      }));
-      it('should ignore directives on child nodes', (function(done) {
+      })));
+      it('should ignore directives on child nodes', inject([AsyncTestCompleter], (function(async) {
         var template = '<div non-bindable><span id=child test-dec>{{text}}</span></div>';
         compileWithTemplate(template).then((function(pv) {
           createView(pv);
           cd.detectChanges();
           var span = DOM.querySelector(view.nodes[0], '#child');
           expect(DOM.hasClass(span, 'compiled')).toBeFalsy();
-          done();
+          async.done();
         }));
-      }));
-      it('should trigger directives on the same node', (function(done) {
+      })));
+      it('should trigger directives on the same node', inject([AsyncTestCompleter], (function(async) {
         var template = '<div><span id=child non-bindable test-dec>{{text}}</span></div>';
         compileWithTemplate(template).then((function(pv) {
           createView(pv);
           cd.detectChanges();
           var span = DOM.querySelector(view.nodes[0], '#child');
           expect(DOM.hasClass(span, 'compiled')).toBeTruthy();
-          done();
+          async.done();
         }));
-      }));
+      })));
     }));
   }
   $__export("main", main);
@@ -94,14 +96,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
-      describe = $__m.describe;
-      xit = $__m.xit;
-      it = $__m.it;
-      expect = $__m.expect;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
       ddescribe = $__m.ddescribe;
-      iit = $__m.iit;
+      describe = $__m.describe;
       el = $__m.el;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
+      it = $__m.it;
+      xit = $__m.xit;
     }, function($__m) {
       DOM = $__m.DOM;
     }, function($__m) {

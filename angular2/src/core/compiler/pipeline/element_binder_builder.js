@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/src/reflection/reflection", "angular2/change_detection", "../directive_metadata", "./compile_step", "./compile_element", "./compile_control"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/src/reflection/reflection", "angular2/change_detection", "../directive_metadata", "./compile_step", "./compile_element", "./compile_control", "./util"], function($__export) {
   "use strict";
   var assert,
       int,
@@ -22,13 +22,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       CompileStep,
       CompileElement,
       CompileControl,
+      dashCaseToCamelCase,
+      camelCaseToDashCase,
       DOT_REGEXP,
       ARIA_PREFIX,
       ariaSettersCache,
-      CLASS_ATTR,
       CLASS_PREFIX,
       classSettersCache,
-      STYLE_ATTR,
       STYLE_PREFIX,
       styleSettersCache,
       ROLE_ATTR,
@@ -36,12 +36,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
   function ariaSetterFactory(attrName) {
     assert.argumentTypes(attrName, assert.type.string);
     var setterFn = StringMapWrapper.get(ariaSettersCache, attrName);
+    var ariaAttrName;
     if (isBlank(setterFn)) {
+      ariaAttrName = camelCaseToDashCase(attrName);
       setterFn = function(element, value) {
         if (isPresent(value)) {
-          DOM.setAttribute(element, attrName, stringify(value));
+          DOM.setAttribute(element, ariaAttrName, stringify(value));
         } else {
-          DOM.removeAttribute(element, attrName);
+          DOM.removeAttribute(element, ariaAttrName);
         }
       };
       StringMapWrapper.set(ariaSettersCache, attrName, setterFn);
@@ -67,14 +69,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
     assert.argumentTypes(styleName, assert.type.string, stylesuffix, assert.type.string);
     var cacheKey = styleName + stylesuffix;
     var setterFn = StringMapWrapper.get(styleSettersCache, cacheKey);
+    var dashCasedStyleName;
     if (isBlank(setterFn)) {
+      dashCasedStyleName = camelCaseToDashCase(styleName);
       setterFn = function(element, value) {
         var valAsStr;
         if (isPresent(value)) {
           valAsStr = stringify(value);
-          DOM.setStyle(element, styleName, valAsStr + stylesuffix);
+          DOM.setStyle(element, dashCasedStyleName, valAsStr + stylesuffix);
         } else {
-          DOM.removeStyle(element, styleName);
+          DOM.removeStyle(element, dashCasedStyleName);
         }
       };
       StringMapWrapper.set(classSettersCache, cacheKey, setterFn);
@@ -129,21 +133,22 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
       CompileElement = $__m.CompileElement;
     }, function($__m) {
       CompileControl = $__m.CompileControl;
+    }, function($__m) {
+      dashCaseToCamelCase = $__m.dashCaseToCamelCase;
+      camelCaseToDashCase = $__m.camelCaseToDashCase;
     }],
     execute: function() {
       DOT_REGEXP = RegExpWrapper.create('\\.');
-      ARIA_PREFIX = 'aria-';
+      ARIA_PREFIX = 'aria';
       ariaSettersCache = StringMapWrapper.create();
       Object.defineProperty(ariaSetterFactory, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
-      CLASS_ATTR = 'class';
       CLASS_PREFIX = 'class.';
       classSettersCache = StringMapWrapper.create();
       Object.defineProperty(classSetterFactory, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
-      STYLE_ATTR = 'style';
       STYLE_PREFIX = 'style.';
       styleSettersCache = StringMapWrapper.create();
       Object.defineProperty(styleSetterFactory, "parameters", {get: function() {
@@ -253,7 +258,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
               StringMapWrapper.forEach(annotation.bind, (function(bindConfig, dirProp) {
                 var pipes = $__0._splitBindConfig(bindConfig);
                 var elProp = ListWrapper.removeAt(pipes, 0);
-                var bindingAst = isPresent(compileElement.propertyBindings) ? MapWrapper.get(compileElement.propertyBindings, elProp) : null;
+                var bindingAst = isPresent(compileElement.propertyBindings) ? MapWrapper.get(compileElement.propertyBindings, dashCaseToCamelCase(elProp)) : null;
                 if (isBlank(bindingAst)) {
                   var attributeValue = MapWrapper.get(compileElement.attrs(), elProp);
                   if (isPresent(attributeValue)) {
@@ -262,7 +267,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
                 }
                 if (isPresent(bindingAst)) {
                   var fullExpAstWithBindPipes = $__0._parser.addPipes(bindingAst, pipes);
-                  protoView.bindDirectiveProperty(directiveIndex, fullExpAstWithBindPipes, dirProp, reflector.setter(dirProp));
+                  protoView.bindDirectiveProperty(directiveIndex, fullExpAstWithBindPipes, dirProp, reflector.setter(dashCaseToCamelCase(dirProp)));
                 }
               }));
             }

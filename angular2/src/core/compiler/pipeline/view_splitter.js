@@ -103,8 +103,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
               var binding = bindings[i];
               if (binding.keyIsVar) {
                 compileElement.addVariableBinding(binding.key, binding.name);
+                MapWrapper.set(compileElement.attrs(), binding.key, binding.name);
               } else if (isPresent(binding.expression)) {
                 compileElement.addPropertyBinding(binding.key, binding.expression);
+                MapWrapper.set(compileElement.attrs(), binding.key, binding.expression.source);
               } else {
                 DOM.setAttribute(compileElement.element, binding.key, '');
               }

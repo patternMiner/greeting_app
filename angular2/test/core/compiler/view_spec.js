@@ -41,7 +41,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
       VmTurnZone,
       EventManager,
       DomEventsPlugin,
-      Reflector,
       reflector,
       FakeViewContainer,
       FakeView,
@@ -66,7 +65,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         var eventManager = arguments[1] !== (void 0) ? arguments[1] : null;
         assert.argumentTypes(protoView, assert.type.any, eventManager, EventManager);
         var ctx = new MyEvaluationContext();
-        var view = protoView.instantiate(null, eventManager, reflector);
+        var view = protoView.instantiate(null, eventManager);
         view.hydrate(null, null, ctx);
         return view;
       }
@@ -82,7 +81,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         var view;
         beforeEach((function() {
           var pv = new ProtoView(el('<div id="1"></div>'), new DynamicProtoChangeDetector(null), null);
-          view = pv.instantiate(null, null, reflector);
+          view = pv.instantiate(null, null);
         }));
         it('should be dehydrated by default', (function() {
           expect(view.hydrated()).toBe(false);
@@ -105,7 +104,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
           var pv = new ProtoView(el('<div id="1"></div>'), new DynamicProtoChangeDetector(null), null);
           var fakeView = new FakeView();
           pv.returnToPool(fakeView);
-          expect(pv.instantiate(null, null, reflector)).toBe(fakeView);
+          expect(pv.instantiate(null, null)).toBe(fakeView);
         }));
       }));
       describe('with locals', function() {
@@ -145,7 +144,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
           }
           it('should collect the root node in the ProtoView element', (function() {
             var pv = new ProtoView(templateAwareCreateElement('<div id="1"></div>'), new DynamicProtoChangeDetector(null), null);
-            var view = pv.instantiate(null, null, reflector);
+            var view = pv.instantiate(null, null);
             view.hydrate(null, null, null);
             expect(view.nodes.length).toBe(1);
             expect(DOM.getAttribute(view.nodes[0], 'id')).toEqual('1');
@@ -155,7 +154,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
               var pv = new ProtoView(templateAwareCreateElement('<div [prop]="a" class="ng-binding"></div>'), new DynamicProtoChangeDetector(null), null);
               pv.bindElement(null);
               pv.bindElementProperty(parser.parseBinding('a', null), 'prop', reflector.setter('prop'));
-              var view = pv.instantiate(null, null, reflector);
+              var view = pv.instantiate(null, null);
               view.hydrate(null, null, null);
               expect(view.bindElements.length).toEqual(1);
               expect(view.bindElements[0]).toBe(view.nodes[0]);
@@ -164,7 +163,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
               var pv = new ProtoView(templateAwareCreateElement('<div><span></span><span class="ng-binding"></span></div>'), new DynamicProtoChangeDetector(null), null);
               pv.bindElement(null);
               pv.bindElementProperty(parser.parseBinding('b', null), 'a', reflector.setter('a'));
-              var view = pv.instantiate(null, null, reflector);
+              var view = pv.instantiate(null, null);
               view.hydrate(null, null, null);
               expect(view.bindElements.length).toEqual(1);
               expect(view.bindElements[0]).toBe(view.nodes[0].childNodes[1]);
@@ -176,7 +175,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
               pv.bindElement(null);
               pv.bindTextNode(0, parser.parseBinding('a', null));
               pv.bindTextNode(2, parser.parseBinding('b', null));
-              var view = pv.instantiate(null, null, reflector);
+              var view = pv.instantiate(null, null);
               view.hydrate(null, null, null);
               expect(view.textNodes.length).toEqual(2);
               expect(view.textNodes[0]).toBe(view.nodes[0].childNodes[0]);
@@ -186,7 +185,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
               var pv = new ProtoView(templateAwareCreateElement('<div><span> </span><span class="ng-binding">{{}}</span></div>'), new DynamicProtoChangeDetector(null), null);
               pv.bindElement(null);
               pv.bindTextNode(0, parser.parseBinding('b', null));
-              var view = pv.instantiate(null, null, reflector);
+              var view = pv.instantiate(null, null);
               view.hydrate(null, null, null);
               expect(view.textNodes.length).toEqual(1);
               expect(view.textNodes[0]).toBe(view.nodes[0].childNodes[1].childNodes[0]);
@@ -201,14 +200,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
             var template = el('<div></div>');
             var pv = new ProtoView(template, new DynamicProtoChangeDetector(null), new NativeShadowDomStrategy(null));
             pv.instantiateInPlace = true;
-            var view = pv.instantiate(null, null, reflector);
+            var view = pv.instantiate(null, null);
             view.hydrate(null, null, null);
             expect(view.nodes[0]).toBe(template);
           }));
           it('should be off by default.', (function() {
             var template = el('<div></div>');
             var pv = new ProtoView(template, new DynamicProtoChangeDetector(null), new NativeShadowDomStrategy(null));
-            var view = pv.instantiate(null, null, reflector);
+            var view = pv.instantiate(null, null);
             view.hydrate(null, null, null);
             expect(view.nodes[0]).not.toBe(template);
           }));
@@ -223,7 +222,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
           it('should use the directives of the ProtoElementInjector', (function() {
             var pv = new ProtoView(el('<div class="ng-binding"></div>'), new DynamicProtoChangeDetector(null), null);
             pv.bindElement(new ProtoElementInjector(null, 1, [SomeDirective]));
-            var view = pv.instantiate(null, null, reflector);
+            var view = pv.instantiate(null, null);
             view.hydrate(null, null, null);
             expect(view.elementInjectors.length).toBe(1);
             expect(view.elementInjectors[0].get(SomeDirective) instanceof SomeDirective).toBe(true);
@@ -233,7 +232,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
             var protoParent = new ProtoElementInjector(null, 0, [SomeDirective]);
             pv.bindElement(protoParent);
             pv.bindElement(new ProtoElementInjector(protoParent, 1, [AnotherDirective]));
-            var view = pv.instantiate(null, null, reflector);
+            var view = pv.instantiate(null, null);
             view.hydrate(null, null, null);
             expect(view.elementInjectors.length).toBe(2);
             expect(view.elementInjectors[0].get(SomeDirective) instanceof SomeDirective).toBe(true);
@@ -246,10 +245,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
             var testProtoElementInjector = new TestProtoElementInjector(protoParent, 1, [AnotherDirective]);
             pv.bindElement(testProtoElementInjector);
             var hostProtoInjector = new ProtoElementInjector(null, 0, []);
-            var hostInjector = hostProtoInjector.instantiate(null, null, reflector);
+            var hostInjector = hostProtoInjector.instantiate(null, null);
             var view;
             expect((function() {
-              return view = pv.instantiate(hostInjector, null, reflector);
+              return view = pv.instantiate(hostInjector, null);
             })).not.toThrow();
             expect(testProtoElementInjector.parentElementInjector).toBe(view.elementInjectors[0]);
             expect(testProtoElementInjector.hostElementInjector).toBeNull();
@@ -260,9 +259,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
             var testProtoElementInjector = new TestProtoElementInjector(null, 1, [AnotherDirective]);
             pv.bindElement(testProtoElementInjector);
             var hostProtoInjector = new ProtoElementInjector(null, 0, []);
-            var hostInjector = hostProtoInjector.instantiate(null, null, reflector);
+            var hostInjector = hostProtoInjector.instantiate(null, null);
             expect((function() {
-              return pv.instantiate(hostInjector, null, reflector);
+              return pv.instantiate(hostInjector, null);
             })).not.toThrow();
             expect(testProtoElementInjector.parentElementInjector).toBeNull();
             expect(testProtoElementInjector.hostElementInjector).toBe(hostInjector);
@@ -274,7 +273,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
             var protoParent = new ProtoElementInjector(null, 0, [SomeDirective]);
             pv.bindElement(protoParent);
             pv.bindElement(new ProtoElementInjector(protoParent, 1, [AnotherDirective]));
-            var view = pv.instantiate(null, null, reflector);
+            var view = pv.instantiate(null, null);
             view.hydrate(null, null, null);
             expect(view.rootElementInjectors.length).toBe(1);
             expect(view.rootElementInjectors[0].get(SomeDirective) instanceof SomeDirective).toBe(true);
@@ -283,7 +282,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
             var pv = new ProtoView(el('<div><span class="ng-binding"></span><span class="ng-binding"></span></div>'), new DynamicProtoChangeDetector(null), null);
             pv.bindElement(new ProtoElementInjector(null, 1, [SomeDirective]));
             pv.bindElement(new ProtoElementInjector(null, 2, [AnotherDirective]));
-            var view = pv.instantiate(null, null, reflector);
+            var view = pv.instantiate(null, null);
             view.hydrate(null, null, null);
             expect(view.rootElementInjectors.length).toBe(2);
             expect(view.rootElementInjectors[0].get(SomeDirective) instanceof SomeDirective).toBe(true);
@@ -301,7 +300,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
           }
           function createNestedView(protoView) {
             ctx = new MyEvaluationContext();
-            var view = protoView.instantiate(null, null, reflector);
+            var view = protoView.instantiate(null, null);
             view.hydrate(new Injector([]), null, ctx);
             return view;
           }
@@ -523,13 +522,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         }));
         it('should create the root component when instantiated', (function() {
           var rootProtoView = ProtoView.createRootProtoView(pv, element, someComponentDirective, new DynamicProtoChangeDetector(null), new NativeShadowDomStrategy(null));
-          var view = rootProtoView.instantiate(null, null, reflector);
+          var view = rootProtoView.instantiate(null, null);
           view.hydrate(new Injector([]), null, null);
           expect(view.rootElementInjectors[0].get(SomeComponent)).not.toBe(null);
         }));
         it('should inject the protoView into the shadowDom', (function() {
           var rootProtoView = ProtoView.createRootProtoView(pv, element, someComponentDirective, new DynamicProtoChangeDetector(null), new NativeShadowDomStrategy(null));
-          var view = rootProtoView.instantiate(null, null, reflector);
+          var view = rootProtoView.instantiate(null, null);
           view.hydrate(new Injector([]), null, null);
           expect(element.shadowRoot.childNodes[0].childNodes[0].nodeValue).toEqual('hi');
         }));
@@ -596,7 +595,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
       EventManager = $__m.EventManager;
       DomEventsPlugin = $__m.DomEventsPlugin;
     }, function($__m) {
-      Reflector = $__m.Reflector;
       reflector = $__m.reflector;
     }],
     execute: function() {
@@ -715,18 +713,18 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
           assert.argumentTypes(parent, ProtoElementInjector, index, int, bindings, List, firstBindingIsComponent, assert.type.boolean);
           $traceurRuntime.superConstructor(TestProtoElementInjector).call(this, parent, index, bindings, firstBindingIsComponent);
         };
-        return ($traceurRuntime.createClass)(TestProtoElementInjector, {instantiate: function(parent, host, reflector) {
-            assert.argumentTypes(parent, ElementInjector, host, ElementInjector, reflector, Reflector);
+        return ($traceurRuntime.createClass)(TestProtoElementInjector, {instantiate: function(parent, host) {
+            assert.argumentTypes(parent, ElementInjector, host, ElementInjector);
             this.parentElementInjector = parent;
             this.hostElementInjector = host;
-            return assert.returnType(($traceurRuntime.superGet(this, TestProtoElementInjector.prototype, "instantiate").call(this, parent, host, reflector)), ElementInjector);
+            return assert.returnType(($traceurRuntime.superGet(this, TestProtoElementInjector.prototype, "instantiate").call(this, parent, host)), ElementInjector);
           }}, {}, $__super);
       }(ProtoElementInjector));
       Object.defineProperty(TestProtoElementInjector, "parameters", {get: function() {
           return [[ProtoElementInjector], [int], [List], [assert.type.boolean]];
         }});
       Object.defineProperty(TestProtoElementInjector.prototype.instantiate, "parameters", {get: function() {
-          return [[ElementInjector], [ElementInjector], [Reflector]];
+          return [[ElementInjector], [ElementInjector]];
         }});
       FakeVmTurnZone = (function($__super) {
         var FakeVmTurnZone = function FakeVmTurnZone() {

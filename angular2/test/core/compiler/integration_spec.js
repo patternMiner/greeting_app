@@ -1,14 +1,16 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/mock/template_resolver_mock", "angular2/src/core/compiler/binding_propagation_config", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/annotations/visibility", "angular2/src/core/annotations/di", "angular2/src/directives/if", "angular2/src/core/compiler/view_container", "angular2/src/reflection/reflection"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/mock/template_resolver_mock", "angular2/src/core/compiler/binding_propagation_config", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/annotations/visibility", "angular2/src/core/annotations/di", "angular2/src/directives/if", "angular2/src/core/compiler/view_container"], function($__export) {
   "use strict";
   var assert,
-      describe,
-      xit,
-      it,
-      expect,
+      AsyncTestCompleter,
       beforeEach,
       ddescribe,
-      iit,
+      describe,
       el,
+      expect,
+      iit,
+      inject,
+      it,
+      xit,
       DOM,
       Type,
       isPresent,
@@ -43,7 +45,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       EventEmitter,
       If,
       ViewContainer,
-      reflector,
       MyDir,
       PushBasedComp,
       MyComp,
@@ -58,7 +59,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       DoublePipe,
       DoublePipeFactory,
       DecoratorEmitingEvent,
-      DecoratorListeningEvent;
+      DecoratorListeningEvent,
+      IdComponent;
   function main() {
     describe('integration tests', function() {
       var compiler,
@@ -77,31 +79,31 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             cd;
         function createView(pv) {
           ctx = new MyComp();
-          view = pv.instantiate(null, null, reflector);
+          view = pv.instantiate(null, null);
           view.hydrate(new Injector([]), null, ctx);
           cd = view.changeDetector;
         }
-        it('should consume text node changes', (function(done) {
+        it('should consume text node changes', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({inline: '<div>{{ctxProp}}</div>'}));
           compiler.compile(MyComp).then((function(pv) {
             createView(pv);
             ctx.ctxProp = 'Hello World!';
             cd.detectChanges();
             expect(DOM.getInnerHTML(view.nodes[0])).toEqual('Hello World!');
-            done();
+            async.done();
           }));
-        }));
-        it('should consume element binding changes', (function(done) {
+        })));
+        it('should consume element binding changes', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({inline: '<div [id]="ctxProp"></div>'}));
           compiler.compile(MyComp).then((function(pv) {
             createView(pv);
             ctx.ctxProp = 'Hello World!';
             cd.detectChanges();
             expect(view.nodes[0].id).toEqual('Hello World!');
-            done();
+            async.done();
           }));
-        }));
-        it('should consume binding to aria-* attributes', (function(done) {
+        })));
+        it('should consume binding to aria-* attributes', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({inline: '<div [aria-label]="ctxProp"></div>'}));
           compiler.compile(MyComp).then((function(pv) {
             createView(pv);
@@ -111,10 +113,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             ctx.ctxProp = 'Changed aria label';
             cd.detectChanges();
             expect(DOM.getAttribute(view.nodes[0], 'aria-label')).toEqual('Changed aria label');
-            done();
+            async.done();
           }));
-        }));
-        it('should consume binding to property names where attr name and property name do not match', (function(done) {
+        })));
+        it('should consume binding to property names where attr name and property name do not match', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({inline: '<div [tabindex]="ctxNumProp"></div>'}));
           compiler.compile(MyComp).then((function(pv) {
             createView(pv);
@@ -123,10 +125,22 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             ctx.ctxNumProp = 5;
             cd.detectChanges();
             expect(view.nodes[0].tabIndex).toEqual(5);
-            done();
+            async.done();
           }));
-        }));
-        it('should consume binding to inner-html', (function(done) {
+        })));
+        it('should consume binding to camel-cased properties using dash-cased syntax in templates', inject([AsyncTestCompleter], (function(async) {
+          tplResolver.setTemplate(MyComp, new Template({inline: '<input [read-only]="ctxBoolProp">'}));
+          compiler.compile(MyComp).then((function(pv) {
+            createView(pv);
+            cd.detectChanges();
+            expect(view.nodes[0].readOnly).toBeFalsy();
+            ctx.ctxBoolProp = true;
+            cd.detectChanges();
+            expect(view.nodes[0].readOnly).toBeTruthy();
+            async.done();
+          }));
+        })));
+        it('should consume binding to inner-html', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({inline: '<div inner-html="{{ctxProp}}"></div>'}));
           compiler.compile(MyComp).then((function(pv) {
             createView(pv);
@@ -136,10 +150,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             ctx.ctxProp = 'Some other <div>HTML</div>';
             cd.detectChanges();
             expect(DOM.getInnerHTML(view.nodes[0])).toEqual('Some other <div>HTML</div>');
-            done();
+            async.done();
           }));
-        }));
-        it('should consume directive watch expression change.', (function(done) {
+        })));
+        it('should consume directive watch expression change.', inject([AsyncTestCompleter], (function(async) {
           var tpl = '<div>' + '<div my-dir [elprop]="ctxProp"></div>' + '<div my-dir elprop="Hi there!"></div>' + '<div my-dir elprop="Hi {{\'there!\'}}"></div>' + '<div my-dir elprop="One more {{ctxProp}}"></div>' + '</div>';
           tplResolver.setTemplate(MyComp, new Template({
             inline: tpl,
@@ -153,10 +167,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             expect(view.elementInjectors[1].get(MyDir).dirProp).toEqual('Hi there!');
             expect(view.elementInjectors[2].get(MyDir).dirProp).toEqual('Hi there!');
             expect(view.elementInjectors[3].get(MyDir).dirProp).toEqual('One more Hello World!');
-            done();
+            async.done();
           }));
-        }));
-        it("should support pipes in bindings and bind config", (function(done) {
+        })));
+        it("should support pipes in bindings and bind config", inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<component-with-pipes #comp [prop]="ctxProp | double"></component-with-pipes>',
             directives: [ComponentWithPipes]
@@ -170,10 +184,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             cd.detectChanges();
             var comp = view.contextWithLocals.get("comp");
             expect(comp.prop).toEqual('aaaa');
-            done();
+            async.done();
           }));
-        }));
-        it('should support nested components.', (function(done) {
+        })));
+        it('should support nested components.', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<child-cmp></child-cmp>',
             directives: [ChildComp]
@@ -182,10 +196,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             createView(pv);
             cd.detectChanges();
             expect(view.nodes[0].shadowRoot.childNodes[0].nodeValue).toEqual('hello');
-            done();
+            async.done();
           }));
-        }));
-        it('should support different directive types on a single node', (function(done) {
+        })));
+        it('should support different directive types on a single node', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<child-cmp my-dir [elprop]="ctxProp"></child-cmp>',
             directives: [MyDir, ChildComp]
@@ -197,20 +211,38 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             var elInj = view.elementInjectors[0];
             expect(elInj.get(MyDir).dirProp).toEqual('Hello World!');
             expect(elInj.get(ChildComp).dirProp).toEqual(null);
-            done();
+            async.done();
           }));
-        }));
-        it('should support directives where a binding attribute is not given', function(done) {
+        })));
+        it('should support directives where a binding attribute is not given', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<p my-dir></p>',
             directives: [MyDir]
           }));
           compiler.compile(MyComp).then((function(pv) {
             createView(pv);
-            done();
+            async.done();
           }));
-        });
-        it('should support template directives via `<template>` elements.', (function(done) {
+        })));
+        it('should support directives where a selector matches property binding', inject([AsyncTestCompleter], (function(async) {
+          tplResolver.setTemplate(MyComp, new Template({
+            inline: '<p [id]="ctxProp"></p>',
+            directives: [IdComponent]
+          }));
+          compiler.compile(MyComp).then((function(pv) {
+            createView(pv);
+            ctx.ctxProp = 'some_id';
+            cd.detectChanges();
+            expect(view.nodes[0].id).toEqual('some_id');
+            expect(DOM.getInnerHTML(view.nodes[0].shadowRoot.childNodes[0])).toEqual('Matched on id with some_id');
+            ctx.ctxProp = 'other_id';
+            cd.detectChanges();
+            expect(view.nodes[0].id).toEqual('other_id');
+            expect(DOM.getInnerHTML(view.nodes[0].shadowRoot.childNodes[0])).toEqual('Matched on id with other_id');
+            async.done();
+          }));
+        })));
+        it('should support template directives via `<template>` elements.', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<div><template some-viewport var-greeting="some-tmpl"><copy-me>{{greeting}}</copy-me></template></div>',
             directives: [SomeViewport]
@@ -222,10 +254,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             expect(childNodesOfWrapper.length).toBe(3);
             expect(childNodesOfWrapper[1].childNodes[0].nodeValue).toEqual('hello');
             expect(childNodesOfWrapper[2].childNodes[0].nodeValue).toEqual('again');
-            done();
+            async.done();
           }));
-        }));
-        it('should support template directives via `template` attribute.', (function(done) {
+        })));
+        it('should support template directives via `template` attribute.', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<div><copy-me template="some-viewport: var greeting=some-tmpl">{{greeting}}</copy-me></div>',
             directives: [SomeViewport]
@@ -237,10 +269,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             expect(childNodesOfWrapper.length).toBe(3);
             expect(childNodesOfWrapper[1].childNodes[0].nodeValue).toEqual('hello');
             expect(childNodesOfWrapper[2].childNodes[0].nodeValue).toEqual('again');
-            done();
+            async.done();
           }));
-        }));
-        it('should assign the component instance to a var-', (function(done) {
+        })));
+        it('should assign the component instance to a var-', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<p><child-cmp var-alice></child-cmp></p>',
             directives: [ChildComp]
@@ -249,10 +281,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             createView(pv);
             expect(view.contextWithLocals).not.toBe(null);
             expect(view.contextWithLocals.get('alice')).toBeAnInstanceOf(ChildComp);
-            done();
+            async.done();
           }));
-        }));
-        it('should assign two component instances each with a var-', (function(done) {
+        })));
+        it('should assign two component instances each with a var-', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<p><child-cmp var-alice></child-cmp><child-cmp var-bob></p>',
             directives: [ChildComp]
@@ -263,10 +295,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             expect(view.contextWithLocals.get('alice')).toBeAnInstanceOf(ChildComp);
             expect(view.contextWithLocals.get('bob')).toBeAnInstanceOf(ChildComp);
             expect(view.contextWithLocals.get('alice')).not.toBe(view.contextWithLocals.get('bob'));
-            done();
+            async.done();
           }));
-        }));
-        it('should assign the component instance to a var- with shorthand syntax', (function(done) {
+        })));
+        it('should assign the component instance to a var- with shorthand syntax', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<child-cmp #alice></child-cmp>',
             directives: [ChildComp]
@@ -275,10 +307,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             createView(pv);
             expect(view.contextWithLocals).not.toBe(null);
             expect(view.contextWithLocals.get('alice')).toBeAnInstanceOf(ChildComp);
-            done();
+            async.done();
           }));
-        }));
-        it('should assign the element instance to a user-defined variable', (function(done) {
+        })));
+        it('should assign the element instance to a user-defined variable', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({inline: '<p><div var-alice><i>Hello</i></div></p>'}));
           compiler.compile(MyComp).then((function(pv) {
             createView(pv);
@@ -286,10 +318,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             var value = view.contextWithLocals.get('alice');
             expect(value).not.toBe(null);
             expect(value.tagName.toLowerCase()).toEqual('div');
-            done();
+            async.done();
           }));
-        }));
-        it('should provide binding configuration config to the component', (function(done) {
+        })));
+        it('should provide binding configuration config to the component', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<push-cmp #cmp></push-cmp>',
             directives: [[[PushBasedComp]]]
@@ -304,10 +336,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             cmp.propagate();
             cd.detectChanges();
             expect(cmp.numberOfChecks).toEqual(2);
-            done();
+            async.done();
           }));
-        }));
-        it('should create a component that injects a @Parent', (function(done) {
+        })));
+        it('should create a component that injects a @Parent', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<some-directive><cmp-with-parent #child></cmp-with-parent></some-directive>',
             directives: [SomeDirective, CompWithParent]
@@ -316,10 +348,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             createView(pv);
             var childComponent = view.contextWithLocals.get('child');
             expect(childComponent.myParent).toBeAnInstanceOf(SomeDirective);
-            done();
+            async.done();
           }));
-        }));
-        it('should create a component that injects an @Ancestor', (function(done) {
+        })));
+        it('should create a component that injects an @Ancestor', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: "\n            <some-directive>\n              <p>\n                <cmp-with-ancestor #child></cmp-with-ancestor>\n              </p>\n            </some-directive>",
             directives: [SomeDirective, CompWithAncestor]
@@ -328,10 +360,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             createView(pv);
             var childComponent = view.contextWithLocals.get('child');
             expect(childComponent.myAncestor).toBeAnInstanceOf(SomeDirective);
-            done();
+            async.done();
           }));
-        }));
-        it('should create a component that injects an @Ancestor through viewport directive', (function(done) {
+        })));
+        it('should create a component that injects an @Ancestor through viewport directive', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: "\n            <some-directive>\n              <p *if=\"true\">\n                <cmp-with-ancestor #child></cmp-with-ancestor>\n              </p>\n            </some-directive>",
             directives: [SomeDirective, CompWithAncestor, If]
@@ -342,10 +374,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             var subview = view.viewContainers[0].get(0);
             var childComponent = subview.contextWithLocals.get('child');
             expect(childComponent.myAncestor).toBeAnInstanceOf(SomeDirective);
-            done();
+            async.done();
           }));
-        }));
-        it('should support events', (function(done) {
+        })));
+        it('should support events', inject([AsyncTestCompleter], (function(async) {
           tplResolver.setTemplate(MyComp, new Template({
             inline: '<div emitter listener></div>',
             directives: [DecoratorEmitingEvent, DecoratorListeningEvent]
@@ -360,35 +392,45 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             emitter.fireEvent('fired !');
             expect(emitter.msg).toEqual('fired !');
             expect(listener.msg).toEqual('fired !');
-            done();
+            async.done();
           }));
-        }));
+        })));
       });
       if (assertionsEnabled()) {
         var expectCompileError = function(inlineTpl, errMessage, done) {
           tplResolver.setTemplate(MyComp, new Template({inline: inlineTpl}));
           PromiseWrapper.then(compiler.compile(MyComp), (function(value) {
-            done("Test failure: should not have come here as an exception was expected");
+            throw new BaseException("Test failure: should not have come here as an exception was expected");
           }), (function(err) {
             expect(err.message).toEqual(errMessage);
             done();
           }));
         };
-        it('should raise an error if no directive is registered for an unsupported DOM property', (function(done) {
-          expectCompileError('<div [some-prop]="foo"></div>', 'Missing directive to handle \'some-prop\' in MyComp: <div [some-prop]="foo">', done);
-        }));
-        it('should raise an error if no directive is registered for a template with template bindings', (function(done) {
-          expectCompileError('<div><div template="if: foo"></div></div>', 'Missing directive to handle \'if\' in <div template="if: foo">', done);
-        }));
-        it('should raise an error for missing template directive (1)', (function(done) {
-          expectCompileError('<div><template foo></template></div>', 'Missing directive to handle: <template foo>', done);
-        }));
-        it('should raise an error for missing template directive (2)', (function(done) {
-          expectCompileError('<div><template *if="condition"></template></div>', 'Missing directive to handle: <template *if="condition">', done);
-        }));
-        it('should raise an error for missing template directive (3)', (function(done) {
-          expectCompileError('<div *if="condition"></div>', 'Missing directive to handle \'if\' in MyComp: <div *if="condition">', done);
-        }));
+        it('should raise an error if no directive is registered for an unsupported DOM property', inject([AsyncTestCompleter], (function(async) {
+          expectCompileError('<div [some-prop]="foo"></div>', 'Missing directive to handle \'some-prop\' in MyComp: <div [some-prop]="foo">', (function() {
+            return async.done();
+          }));
+        })));
+        it('should raise an error if no directive is registered for a template with template bindings', inject([AsyncTestCompleter], (function(async) {
+          expectCompileError('<div><div template="if: foo"></div></div>', 'Missing directive to handle \'if\' in <div template="if: foo">', (function() {
+            return async.done();
+          }));
+        })));
+        it('should raise an error for missing template directive (1)', inject([AsyncTestCompleter], (function(async) {
+          expectCompileError('<div><template foo></template></div>', 'Missing directive to handle: <template foo>', (function() {
+            return async.done();
+          }));
+        })));
+        it('should raise an error for missing template directive (2)', inject([AsyncTestCompleter], (function(async) {
+          expectCompileError('<div><template *if="condition"></template></div>', 'Missing directive to handle: <template *if="condition">', (function() {
+            return async.done();
+          }));
+        })));
+        it('should raise an error for missing template directive (3)', inject([AsyncTestCompleter], (function(async) {
+          expectCompileError('<div *if="condition"></div>', 'Missing directive to handle \'if\' in MyComp: <div *if="condition">', (function() {
+            return async.done();
+          }));
+        })));
       }
     });
   }
@@ -397,14 +439,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
-      describe = $__m.describe;
-      xit = $__m.xit;
-      it = $__m.it;
-      expect = $__m.expect;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
       ddescribe = $__m.ddescribe;
-      iit = $__m.iit;
+      describe = $__m.describe;
       el = $__m.el;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
+      it = $__m.it;
+      xit = $__m.xit;
     }, function($__m) {
       DOM = $__m.DOM;
     }, function($__m) {
@@ -460,8 +504,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
       If = $__m.If;
     }, function($__m) {
       ViewContainer = $__m.ViewContainer;
-    }, function($__m) {
-      reflector = $__m.reflector;
     }],
     execute: function() {
       MyDir = (function() {
@@ -503,6 +545,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
         var MyComp = function MyComp() {
           this.ctxProp = 'initial value';
           this.ctxNumProp = 0;
+          this.ctxBoolProp = false;
         };
         return ($traceurRuntime.createClass)(MyComp, {}, {});
       }());
@@ -688,6 +731,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
         }});
       Object.defineProperty(DecoratorListeningEvent.prototype.onEvent, "parameters", {get: function() {
           return [[assert.type.string]];
+        }});
+      IdComponent = (function() {
+        var IdComponent = function IdComponent() {};
+        return ($traceurRuntime.createClass)(IdComponent, {}, {});
+      }());
+      Object.defineProperty(IdComponent, "annotations", {get: function() {
+          return [new Component({
+            selector: '[id]',
+            bind: {'id': 'id'}
+          }), new Template({inline: '<div>Matched on id with {{id}}</div>'})];
         }});
     }
   };

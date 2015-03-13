@@ -55,10 +55,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
           if (isPresent(propertyBindings)) {
             StringMapWrapper.forEach(propertyBindings, (function(v, k) {
               current.addPropertyBinding(k, parser.parseBinding(v, null));
+              MapWrapper.set(current.attrs(), k, v);
             }));
           }
           if (isPresent(variableBindings)) {
-            current.variableBindings = MapWrapper.createFromStringMap(variableBindings);
+            StringMapWrapper.forEach(variableBindings, (function(v, k) {
+              current.addVariableBinding(k, v);
+              MapWrapper.set(current.attrs(), k, v);
+            }));
           }
         })), new DirectiveParser(annotatedDirectives)]);
       }

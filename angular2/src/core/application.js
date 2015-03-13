@@ -5,7 +5,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
       bind,
       OpaqueToken,
       Type,
-      FIELD,
       isBlank,
       isPresent,
       BaseException,
@@ -64,14 +63,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
         throw new BaseException(("The app selector \"" + selector + "\" did not match any elements"));
       }
       return element;
-    }), [appComponentAnnotatedTypeToken, appDocumentToken]), bind(appViewToken).toAsyncFactory((function(changeDetection, compiler, injector, appElement, appComponentAnnotatedType, strategy, eventManager, reflector) {
+    }), [appComponentAnnotatedTypeToken, appDocumentToken]), bind(appViewToken).toAsyncFactory((function(changeDetection, compiler, injector, appElement, appComponentAnnotatedType, strategy, eventManager) {
       return compiler.compile(appComponentAnnotatedType.type).then((function(protoView) {
         var appProtoView = ProtoView.createRootProtoView(protoView, appElement, appComponentAnnotatedType, changeDetection.createProtoChangeDetector('root'), strategy);
-        var view = appProtoView.instantiate(null, eventManager, reflector);
+        var view = appProtoView.instantiate(null, eventManager);
         view.hydrate(injector, null, new Object());
         return view;
       }));
-    }), [ChangeDetection, Compiler, Injector, appElementToken, appComponentAnnotatedTypeToken, ShadowDomStrategy, EventManager, Reflector]), bind(appChangeDetectorToken).toFactory((function(rootView) {
+    }), [ChangeDetection, Compiler, Injector, appElementToken, appComponentAnnotatedTypeToken, ShadowDomStrategy, EventManager]), bind(appChangeDetectorToken).toFactory((function(rootView) {
       return rootView.changeDetector;
     }), [appViewToken]), bind(appComponentType).toFactory((function(rootView) {
       return rootView.elementInjectors[0].getComponent();
@@ -136,7 +135,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/di", "angular2/src/facade/
       OpaqueToken = $__m.OpaqueToken;
     }, function($__m) {
       Type = $__m.Type;
-      FIELD = $__m.FIELD;
       isBlank = $__m.isBlank;
       isPresent = $__m.isPresent;
       BaseException = $__m.BaseException;

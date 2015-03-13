@@ -1,7 +1,6 @@
 System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/reflection/reflection", "./key", "./annotations", "./exceptions"], function($__export) {
   "use strict";
   var assert,
-      FIELD,
       Type,
       isBlank,
       isPresent,
@@ -72,7 +71,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
-      FIELD = $__m.FIELD;
       Type = $__m.Type;
       isBlank = $__m.isBlank;
       isPresent = $__m.isPresent;

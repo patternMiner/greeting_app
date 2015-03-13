@@ -22,6 +22,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", ".
       PromiseWrapper,
       Key,
       _constructing,
+      _notFound,
       _Waiting,
       Injector,
       _SyncInjectorStrategy,
@@ -79,6 +80,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", ".
     }],
     execute: function() {
       _constructing = new Object();
+      _notFound = new Object();
       _Waiting = (function() {
         var _Waiting = function _Waiting(promise) {
           assert.argumentTypes(promise, Promise);
@@ -138,10 +140,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", ".
             }
             var strategy = returnPromise ? this._asyncStrategy : this._syncStrategy;
             var instance = strategy.readFromCache(key);
-            if (isPresent(instance))
+            if (instance !== _notFound)
               return instance;
             instance = strategy.instantiate(key);
-            if (isPresent(instance))
+            if (instance !== _notFound)
               return instance;
             if (isPresent(this._parent)) {
               return this._parent._getByKey(key, returnPromise, returnLazy, optional);
@@ -239,14 +241,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", ".
             } else if (isPresent(instance) && !_isWaiting(instance)) {
               return instance;
             } else {
-              return null;
+              return _notFound;
             }
           },
           instantiate: function(key) {
             assert.argumentTypes(key, Key);
             var binding = this.injector._getBinding(key);
             if (isBlank(binding))
-              return null;
+              return _notFound;
             if (binding.providedAsPromise)
               throw new AsyncBindingError(key);
             this.injector._markAsConstructing(key);
@@ -297,14 +299,14 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", ".
             } else if (isPresent(instance)) {
               return PromiseWrapper.resolve(instance);
             } else {
-              return null;
+              return _notFound;
             }
           },
           instantiate: function(key) {
             var $__0 = this;
             var binding = this.injector._getBinding(key);
             if (isBlank(binding))
-              return null;
+              return _notFound;
             this.injector._markAsConstructing(key);
             var deps = this.injector._resolveDependencies(key, binding, true);
             var depsPromise = PromiseWrapper.all(deps);

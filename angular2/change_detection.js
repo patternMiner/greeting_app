@@ -62,6 +62,7 @@ System.register(["rtts_assert/rtts_assert", "./src/change_detection/parser/ast",
       $__export("ProtoChangeDetector", $__m.ProtoChangeDetector);
       $__export("DynamicProtoChangeDetector", $__m.DynamicProtoChangeDetector);
       $__export("JitProtoChangeDetector", $__m.JitProtoChangeDetector);
+      $__export("BindingRecord", $__m.BindingRecord);
     }, function($__m) {
       $__export("DynamicChangeDetector", $__m.DynamicChangeDetector);
     }, function($__m) {

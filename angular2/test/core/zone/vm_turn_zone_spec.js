@@ -1,15 +1,15 @@
 System.register(["angular2/test_lib", "angular2/src/facade/async", "angular2/src/facade/lang", "angular2/src/core/zone/vm_turn_zone"], function($__export) {
   "use strict";
-  var describe,
-      ddescribe,
-      it,
-      iit,
-      xit,
-      xdescribe,
-      expect,
+  var AsyncTestCompleter,
       beforeEach,
-      async,
-      tick,
+      ddescribe,
+      describe,
+      expect,
+      iit,
+      inject,
+      it,
+      xdescribe,
+      xit,
       Log,
       once,
       PromiseWrapper,
@@ -48,7 +48,7 @@ System.register(["angular2/test_lib", "angular2/src/facade/async", "angular2/src
           zone.run(log.fn('run2'));
           expect(log.result()).toEqual('onTurnStart; run1; onTurnDone; onTurnStart; run2; onTurnDone');
         }));
-        it('should call onTurnStart and onTurnDone before and after each turn', (function(done) {
+        it('should call onTurnStart and onTurnDone before and after each turn', inject([AsyncTestCompleter], (function(async) {
           var a = PromiseWrapper.completer();
           var b = PromiseWrapper.completer();
           zone.run((function() {
@@ -64,9 +64,9 @@ System.register(["angular2/test_lib", "angular2/src/facade/async", "angular2/src
           b.resolve("b");
           PromiseWrapper.all([a.promise, b.promise]).then((function(_) {
             expect(log.result()).toEqual('onTurnStart; run start; onTurnDone; onTurnStart; a then; onTurnDone; onTurnStart; b then; onTurnDone');
-            done();
+            async.done();
           }));
-        }));
+        })));
       }));
       describe("runOutsideAngular", (function() {
         it("should run a function outside of the angular zone", (function() {
@@ -100,7 +100,7 @@ System.register(["angular2/test_lib", "angular2/src/facade/async", "angular2/src
             }));
           })).toThrowError('bbb');
         }));
-        it('should produce long stack traces', (function(done) {
+        it('should produce long stack traces', inject([AsyncTestCompleter], (function(async) {
           zone.initCallbacks({onErrorHandler: saveStackTrace});
           var c = PromiseWrapper.completer();
           zone.run(function() {
@@ -113,10 +113,10 @@ System.register(["angular2/test_lib", "angular2/src/facade/async", "angular2/src
           });
           c.promise.then((function(_) {
             expect(trace.length).toBeGreaterThan(1);
-            done();
+            async.done();
           }));
-        }));
-        it('should produce long stack traces (when using promises)', (function(done) {
+        })));
+        it('should produce long stack traces (when using promises)', inject([AsyncTestCompleter], (function(async) {
           zone.initCallbacks({onErrorHandler: saveStackTrace});
           var c = PromiseWrapper.completer();
           zone.run(function() {
@@ -129,10 +129,10 @@ System.register(["angular2/test_lib", "angular2/src/facade/async", "angular2/src
           });
           c.promise.then((function(_) {
             expect(trace.length).toBeGreaterThan(1);
-            done();
+            async.done();
           }));
-        }));
-        it('should disable long stack traces', (function(done) {
+        })));
+        it('should disable long stack traces', inject([AsyncTestCompleter], (function(async) {
           var zone = new VmTurnZone({enableLongStackTrace: false});
           zone.initCallbacks({onErrorHandler: saveStackTrace});
           var c = PromiseWrapper.completer();
@@ -146,25 +146,25 @@ System.register(["angular2/test_lib", "angular2/src/facade/async", "angular2/src
           });
           c.promise.then((function(_) {
             expect(trace.length).toEqual(1);
-            done();
+            async.done();
           }));
-        }));
+        })));
       }));
     }));
   }
   $__export("main", main);
   return {
     setters: [function($__m) {
-      describe = $__m.describe;
-      ddescribe = $__m.ddescribe;
-      it = $__m.it;
-      iit = $__m.iit;
-      xit = $__m.xit;
-      xdescribe = $__m.xdescribe;
-      expect = $__m.expect;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
-      async = $__m.async;
-      tick = $__m.tick;
+      ddescribe = $__m.ddescribe;
+      describe = $__m.describe;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
+      it = $__m.it;
+      xdescribe = $__m.xdescribe;
+      xit = $__m.xit;
       Log = $__m.Log;
       once = $__m.once;
     }, function($__m) {

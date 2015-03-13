@@ -1,14 +1,16 @@
 System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/view", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/compiler/pipeline/compile_element", "angular2/src/core/compiler/pipeline/compile_step", "angular2/src/core/compiler/pipeline/compile_control", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/template_resolver", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/change_detection", "angular2/src/core/compiler/shadow_dom_strategy"], function($__export) {
   "use strict";
   var assert,
-      describe,
+      AsyncTestCompleter,
       beforeEach,
-      it,
-      expect,
       ddescribe,
-      iit,
+      describe,
       el,
+      expect,
+      iit,
+      inject,
       IS_DARTIUM,
+      it,
       DOM,
       List,
       ListWrapper,
@@ -74,7 +76,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             var tplLoader = new FakeTemplateLoader(urlResolver);
             return new TestableCompiler(reader, steps, tplLoader, tplResolver, urlResolver, new ComponentUrlMapper());
           }
-          it('should run the steps and return the ProtoView of the root element', (function(done) {
+          it('should run the steps and return the ProtoView of the root element', inject([AsyncTestCompleter], (function(async) {
             var rootProtoView = new ProtoView(null, null, null);
             var compiler = createCompiler((function(parent, current, control) {
               current.inheritedProtoView = rootProtoView;
@@ -82,19 +84,19 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             tplResolver.setTemplate(MainComponent, new Template({inline: '<div></div>'}));
             compiler.compile(MainComponent).then((function(protoView) {
               expect(protoView).toBe(rootProtoView);
-              done();
+              async.done();
             }));
-          }));
-          it('should use the inline template', (function(done) {
+          })));
+          it('should use the inline template', inject([AsyncTestCompleter], (function(async) {
             var compiler = createCompiler((function(parent, current, control) {
               current.inheritedProtoView = new ProtoView(current.element, null, null);
             }));
             compiler.compile(MainComponent).then((function(protoView) {
               expect(DOM.getInnerHTML(protoView.element)).toEqual('inline component');
-              done();
+              async.done();
             }));
-          }));
-          it('should wait for async styles to be resolved', (function(done) {
+          })));
+          it('should wait for async styles to be resolved', inject([AsyncTestCompleter], (function(async) {
             var styleResolved = false;
             var completer = PromiseWrapper.completer();
             var compiler = createCompiler((function(parent, current, control) {
@@ -110,10 +112,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             completer.resolve(null);
             pvPromise.then((function(protoView) {
               expect(styleResolved).toEqual(true);
-              done();
+              async.done();
             }));
-          }));
-          it('should load nested components', (function(done) {
+          })));
+          it('should load nested components', inject([AsyncTestCompleter], (function(async) {
             var compiler = createCompiler((function(parent, current, control) {
               if (DOM.hasClass(current.element, 'nested')) {
                 current.componentDirective = reader.read(NestedComponent);
@@ -127,10 +129,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             compiler.compile(MainComponent).then((function(protoView) {
               var nestedView = protoView.elementBinders[0].nestedProtoView;
               expect(DOM.getInnerHTML(nestedView.element)).toEqual('nested component');
-              done();
+              async.done();
             }));
-          }));
-          it('should cache compiled components', (function(done) {
+          })));
+          it('should cache compiled components', inject([AsyncTestCompleter], (function(async) {
             var compiler = createCompiler((function(parent, current, control) {
               current.inheritedProtoView = new ProtoView(current.element, null, null);
             }));
@@ -141,10 +143,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
               return compiler.compile(MainComponent);
             })).then((function(protoView) {
               expect(firstProtoView).toBe(protoView);
-              done();
+              async.done();
             }));
-          }));
-          it('should re-use components being compiled', (function(done) {
+          })));
+          it('should re-use components being compiled', inject([AsyncTestCompleter], (function(async) {
             var nestedElBinders = [];
             var compiler = createCompiler((function(parent, current, control) {
               current.inheritedProtoView = new ProtoView(current.element, null, null);
@@ -157,10 +159,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             tplResolver.setTemplate(MainComponent, new Template({inline: '<div><div class="nested"></div><div class="nested"></div></div>'}));
             compiler.compile(MainComponent).then((function(protoView) {
               expect(nestedElBinders[0].nestedProtoView).toBe(nestedElBinders[1].nestedProtoView);
-              done();
+              async.done();
             }));
-          }));
-          it('should allow recursive components', (function(done) {
+          })));
+          it('should allow recursive components', inject([AsyncTestCompleter], (function(async) {
             var compiler = createCompiler((function(parent, current, control) {
               current.inheritedProtoView = new ProtoView(current.element, null, null);
               current.inheritedElementBinder = current.inheritedProtoView.bindElement(null);
@@ -168,9 +170,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
             }));
             compiler.compile(RecursiveComponent).then((function(protoView) {
               expect(protoView.elementBinders[0].nestedProtoView).toBe(protoView);
-              done();
+              async.done();
             }));
-          }));
+          })));
         }));
       }));
       describe('(mixed async, sync TemplateLoader)', (function() {
@@ -188,7 +190,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
         function createNestedComponentSpec(name, resolver) {
           var error = arguments[2] !== (void 0) ? arguments[2] : null;
           assert.argumentTypes(name, assert.type.any, resolver, TemplateResolver, error, assert.type.string);
-          it(("should load nested components " + name), (function(done) {
+          it(("should load nested components " + name), inject([AsyncTestCompleter], (function(async) {
             var compiler = createCompiler((function(parent, current, control) {
               if (DOM.hasClass(current.element, 'parent')) {
                 current.componentDirective = reader.read(NestedComponent);
@@ -202,12 +204,12 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
               var nestedView = protoView.elementBinders[0].nestedProtoView;
               expect(error).toBeNull();
               expect(DOM.getInnerHTML(nestedView.element)).toEqual('nested component');
-              done();
+              async.done();
             }, function(compileError) {
               expect(compileError.message).toEqual(error);
-              done();
+              async.done();
             });
-          }));
+          })));
         }
         Object.defineProperty(createNestedComponentSpec, "parameters", {get: function() {
             return [[], [TemplateResolver], [assert.type.string]];
@@ -242,7 +244,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
         createNestedComponentSpec('(async -> error)', templateResolver, 'Failed to load the template for NestedComponent -> Failed to compile ParentComponent');
       }));
       describe('URL resolution', (function() {
-        it('should resolve template URLs by combining application, component and template URLs', (function(done) {
+        it('should resolve template URLs by combining application, component and template URLs', inject([AsyncTestCompleter], (function(async) {
           var steps = [new MockStep((function(parent, current, control) {
             current.inheritedProtoView = new ProtoView(current.element, null, null);
           }))];
@@ -261,9 +263,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
           tplResolver.setTemplate(MainComponent, template);
           compiler.compile(MainComponent).then((function(protoView) {
             expect(tplLoader.getTemplateUrl(template)).toEqual('http://www.app.com/cmp/tpl.html');
-            done();
+            async.done();
           }));
-        }));
+        })));
       }));
     });
   }
@@ -272,14 +274,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/d
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
-      describe = $__m.describe;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
-      it = $__m.it;
-      expect = $__m.expect;
       ddescribe = $__m.ddescribe;
-      iit = $__m.iit;
+      describe = $__m.describe;
       el = $__m.el;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
       IS_DARTIUM = $__m.IS_DARTIUM;
+      it = $__m.it;
     }, function($__m) {
       DOM = $__m.DOM;
     }, function($__m) {

@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "../directive_metadata", "../../annotations/annotations", "../element_binder", "../element_injector", "../view", "angular2/change_detection"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "angular2/src/dom/dom_adapter", "angular2/src/facade/lang", "../directive_metadata", "../../annotations/annotations", "../element_binder", "../element_injector", "../view", "./util", "angular2/change_detection"], function($__export) {
   "use strict";
   var assert,
       List,
@@ -12,9 +12,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       Type,
       StringJoiner,
       assertionsEnabled,
-      RegExp,
-      RegExpWrapper,
-      StringWrapper,
       DirectiveMetadata,
       Decorator,
       Component,
@@ -22,9 +19,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       ElementBinder,
       ProtoElementInjector,
       ProtoView,
+      dashCaseToCamelCase,
       AST,
-      CompileElement,
-      _hyphenRe;
+      CompileElement;
   function getElementDescription(domElement) {
     var buf = new StringJoiner();
     var atts = DOM.attributeMap(domElement);
@@ -67,9 +64,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       Type = $__m.Type;
       StringJoiner = $__m.StringJoiner;
       assertionsEnabled = $__m.assertionsEnabled;
-      RegExp = $__m.RegExp;
-      RegExpWrapper = $__m.RegExpWrapper;
-      StringWrapper = $__m.StringWrapper;
     }, function($__m) {
       DirectiveMetadata = $__m.DirectiveMetadata;
     }, function($__m) {
@@ -82,6 +76,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       ProtoElementInjector = $__m.ProtoElementInjector;
     }, function($__m) {
       ProtoView = $__m.ProtoView;
+    }, function($__m) {
+      dashCaseToCamelCase = $__m.dashCaseToCamelCase;
     }, function($__m) {
       AST = $__m.AST;
     }],
@@ -148,13 +144,11 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
             MapWrapper.set(this.textNodeBindings, indexInParent, expression);
           },
           addPropertyBinding: function(property, expression) {
+            assert.argumentTypes(property, assert.type.string, expression, AST);
             if (isBlank(this.propertyBindings)) {
               this.propertyBindings = MapWrapper.create();
             }
-            property = StringWrapper.replaceAllMapped(property, _hyphenRe, (function(match) {
-              return match[1].toUpperCase();
-            }));
-            MapWrapper.set(this.propertyBindings, property, expression);
+            MapWrapper.set(this.propertyBindings, dashCaseToCamelCase(property), expression);
           },
           addVariableBinding: function(variableName, variableValue) {
             assert.argumentTypes(variableName, assert.type.string, variableValue, assert.type.string);
@@ -224,7 +218,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       Object.defineProperty(addDescriptionAttribute, "parameters", {get: function() {
           return [[StringJoiner], [assert.type.string], []];
         }});
-      _hyphenRe = RegExpWrapper.create('-([a-z])');
     }
   };
 });

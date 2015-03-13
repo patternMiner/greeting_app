@@ -111,7 +111,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       }
       function instantiateView(protoView) {
         evalContext = new Context();
-        view = protoView.instantiate(null, null, null);
+        view = protoView.instantiate(null, null);
         view.hydrate(new Injector([]), null, evalContext);
         changeDetector = view.changeDetector;
       }

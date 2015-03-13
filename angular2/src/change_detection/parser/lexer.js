@@ -5,7 +5,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       ListWrapper,
       SetWrapper,
       int,
-      FIELD,
       NumberWrapper,
       StringJoiner,
       StringWrapper,
@@ -188,7 +187,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
       SetWrapper = $__m.SetWrapper;
     }, function($__m) {
       int = $__m.int;
-      FIELD = $__m.FIELD;
       NumberWrapper = $__m.NumberWrapper;
       StringJoiner = $__m.StringJoiner;
       StringWrapper = $__m.StringWrapper;

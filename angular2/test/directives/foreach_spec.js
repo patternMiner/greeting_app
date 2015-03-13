@@ -1,35 +1,28 @@
-System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/src/core/annotations/template", "angular2/src/core/annotations/annotations", "angular2/src/mock/template_resolver_mock", "angular2/src/directives/foreach"], function($__export) {
+System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/di", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/template_resolver", "angular2/src/core/annotations/template", "angular2/src/core/annotations/annotations", "angular2/src/mock/template_resolver_mock", "angular2/src/directives/foreach"], function($__export) {
   "use strict";
-  var describe,
-      xit,
-      it,
-      expect,
+  var AsyncTestCompleter,
       beforeEach,
+      beforeEachBindings,
       ddescribe,
-      iit,
+      describe,
       el,
+      expect,
+      iit,
+      inject,
+      it,
+      xit,
       DOM,
       ListWrapper,
       Injector,
-      Lexer,
-      Parser,
-      ChangeDetector,
-      dynamicChangeDetection,
       Compiler,
-      CompilerCache,
-      DirectiveMetadataReader,
-      NativeShadowDomStrategy,
-      TemplateLoader,
-      ComponentUrlMapper,
-      UrlResolver,
-      StyleUrlResolver,
-      CssProcessor,
+      TemplateResolver,
       Template,
       Decorator,
       Component,
       Viewport,
       MockTemplateResolver,
       Foreach,
+      bind,
       Foo,
       TestComponent;
   function main() {
@@ -39,14 +32,16 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
           compiler,
           component,
           tplResolver;
-      beforeEach((function() {
-        var urlResolver = new UrlResolver();
-        tplResolver = new MockTemplateResolver();
-        compiler = new Compiler(dynamicChangeDetection, new TemplateLoader(null, null), new DirectiveMetadataReader(), new Parser(new Lexer()), new CompilerCache(), new NativeShadowDomStrategy(new StyleUrlResolver(urlResolver)), tplResolver, new ComponentUrlMapper(), urlResolver, new CssProcessor(null));
+      beforeEachBindings((function() {
+        return [bind(TemplateResolver).toClass(MockTemplateResolver)];
       }));
+      beforeEach(inject([Compiler, TemplateResolver], (function(c, t) {
+        compiler = c;
+        tplResolver = t;
+      })));
       function createView(pv) {
         component = new TestComponent();
-        view = pv.instantiate(null, null, null);
+        view = pv.instantiate(null, null);
         view.hydrate(new Injector([]), null, component);
         cd = view.changeDetector;
       }
@@ -59,35 +54,35 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
         return compiler.compile(TestComponent);
       }
       var TEMPLATE = '<div><copy-me template="foreach #item in items">{{item.toString()}};</copy-me></div>';
-      it('should reflect initial elements', (function(done) {
+      it('should reflect initial elements', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate(TEMPLATE).then((function(pv) {
           createView(pv);
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('1;2;');
-          done();
+          async.done();
         }));
-      }));
-      it('should reflect added elements', (function(done) {
+      })));
+      it('should reflect added elements', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate(TEMPLATE).then((function(pv) {
           createView(pv);
           cd.detectChanges();
           ListWrapper.push(component.items, 3);
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('1;2;3;');
-          done();
+          async.done();
         }));
-      }));
-      it('should reflect removed elements', (function(done) {
+      })));
+      it('should reflect removed elements', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate(TEMPLATE).then((function(pv) {
           createView(pv);
           cd.detectChanges();
           ListWrapper.removeAt(component.items, 1);
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('1;');
-          done();
+          async.done();
         }));
-      }));
-      it('should reflect moved elements', (function(done) {
+      })));
+      it('should reflect moved elements', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate(TEMPLATE).then((function(pv) {
           createView(pv);
           cd.detectChanges();
@@ -95,10 +90,10 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
           ListWrapper.push(component.items, 1);
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('2;1;');
-          done();
+          async.done();
         }));
-      }));
-      it('should reflect a mix of all changes (additions/removals/moves)', (function(done) {
+      })));
+      it('should reflect a mix of all changes (additions/removals/moves)', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate(TEMPLATE).then((function(pv) {
           createView(pv);
           component.items = [0, 1, 2, 3, 4, 5];
@@ -106,9 +101,9 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
           component.items = [6, 2, 7, 0, 4, 8];
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('6;2;7;0;4;8;');
-          done();
+          async.done();
         }));
-      }));
+      })));
       it('should iterate over an array of objects', (function() {
         compileWithTemplate('<ul><li template="foreach #item in items">{{item["name"]}};</li></ul>').then((function(pv) {
           createView(pv);
@@ -124,15 +119,15 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
           expect(DOM.getText(view.nodes[0])).toEqual('shyam;');
         }));
       }));
-      it('should gracefully handle nulls', (function(done) {
+      it('should gracefully handle nulls', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate('<ul><li template="foreach #item in null">{{item}};</li></ul>').then((function(pv) {
           createView(pv);
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('');
-          done();
+          async.done();
         }));
-      }));
-      it('should gracefully handle ref changing to null and back', (function(done) {
+      })));
+      it('should gracefully handle ref changing to null and back', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate(TEMPLATE).then((function(pv) {
           createView(pv);
           cd.detectChanges();
@@ -143,10 +138,10 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
           component.items = [1, 2, 3];
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('1;2;3;');
-          done();
+          async.done();
         }));
-      }));
-      it('should throw on ref changing to string', (function(done) {
+      })));
+      it('should throw on ref changing to string', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate(TEMPLATE).then((function(pv) {
           createView(pv);
           cd.detectChanges();
@@ -155,20 +150,20 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
           expect((function() {
             return cd.detectChanges();
           })).toThrowError();
-          done();
+          async.done();
         }));
-      }));
-      it('should works with duplicates', (function(done) {
+      })));
+      it('should works with duplicates', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate(TEMPLATE).then((function(pv) {
           createView(pv);
           var a = new Foo();
           component.items = [a, a];
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('foo;foo;');
-          done();
+          async.done();
         }));
-      }));
-      it('should repeat over nested arrays', (function(done) {
+      })));
+      it('should repeat over nested arrays', inject([AsyncTestCompleter], (function(async) {
         compileWithTemplate('<div><div template="foreach #item in items">' + '<div template="foreach #subitem in item">' + '{{subitem}};' + '</div>|</div></div>').then((function(pv) {
           createView(pv);
           component.items = [['a', 'b'], ['c', 'd']];
@@ -176,10 +171,10 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
           cd.detectChanges();
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('a;b;|c;d;|');
-          done();
+          async.done();
         }));
-      }));
-      it('should display indices correctly', (function(done) {
+      })));
+      it('should display indices correctly', inject([AsyncTestCompleter], (function(async) {
         var INDEX_TEMPLATE = '<div><copy-me template="foreach: var item in items; var i=index">{{i.toString()}}</copy-me></div>';
         compileWithTemplate(INDEX_TEMPLATE).then((function(pv) {
           createView(pv);
@@ -189,50 +184,36 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
           component.items = [1, 2, 6, 7, 4, 3, 5, 8, 9, 0];
           cd.detectChanges();
           expect(DOM.getText(view.nodes[0])).toEqual('0123456789');
-          done();
+          async.done();
         }));
-      }));
+      })));
     }));
   }
   $__export("main", main);
   return {
     setters: [function($__m) {
-      describe = $__m.describe;
-      xit = $__m.xit;
-      it = $__m.it;
-      expect = $__m.expect;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
+      beforeEachBindings = $__m.beforeEachBindings;
       ddescribe = $__m.ddescribe;
-      iit = $__m.iit;
+      describe = $__m.describe;
       el = $__m.el;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
+      it = $__m.it;
+      xit = $__m.xit;
     }, function($__m) {
       DOM = $__m.DOM;
     }, function($__m) {
       ListWrapper = $__m.ListWrapper;
     }, function($__m) {
       Injector = $__m.Injector;
-    }, function($__m) {
-      Lexer = $__m.Lexer;
-      Parser = $__m.Parser;
-      ChangeDetector = $__m.ChangeDetector;
-      dynamicChangeDetection = $__m.dynamicChangeDetection;
+      bind = $__m.bind;
     }, function($__m) {
       Compiler = $__m.Compiler;
-      CompilerCache = $__m.CompilerCache;
     }, function($__m) {
-      DirectiveMetadataReader = $__m.DirectiveMetadataReader;
-    }, function($__m) {
-      NativeShadowDomStrategy = $__m.NativeShadowDomStrategy;
-    }, function($__m) {
-      TemplateLoader = $__m.TemplateLoader;
-    }, function($__m) {
-      ComponentUrlMapper = $__m.ComponentUrlMapper;
-    }, function($__m) {
-      UrlResolver = $__m.UrlResolver;
-    }, function($__m) {
-      StyleUrlResolver = $__m.StyleUrlResolver;
-    }, function($__m) {
-      CssProcessor = $__m.CssProcessor;
+      TemplateResolver = $__m.TemplateResolver;
     }, function($__m) {
       Template = $__m.Template;
     }, function($__m) {

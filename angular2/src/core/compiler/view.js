@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "angular2/src/facade/async", "angular2/src/facade/collection", "angular2/change_detection", "./element_injector", "./binding_propagation_config", "./element_binder", "./directive_metadata", "angular2/src/reflection/types", "angular2/src/facade/lang", "angular2/di", "angular2/src/core/dom/element", "./view_container", "./shadow_dom_emulation/light_dom", "./shadow_dom_strategy", "./view_pool", "angular2/src/core/events/event_manager", "angular2/src/reflection/reflection"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "angular2/src/facade/async", "angular2/src/facade/collection", "angular2/change_detection", "./element_injector", "./binding_propagation_config", "./element_binder", "./directive_metadata", "angular2/src/reflection/types", "angular2/src/facade/lang", "angular2/di", "angular2/src/core/dom/element", "./view_container", "./shadow_dom_emulation/light_dom", "./shadow_dom_strategy", "./view_pool", "angular2/src/core/events/event_manager"], function($__export) {
   "use strict";
   var assert,
       DOM,
@@ -14,6 +14,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       ProtoChangeDetector,
       ChangeDetector,
       ChangeRecord,
+      BindingRecord,
       ProtoElementInjector,
       ElementInjector,
       PreBuiltObjects,
@@ -21,7 +22,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       ElementBinder,
       DirectiveMetadata,
       SetterFn,
-      FIELD,
       IMPLEMENTS,
       int,
       isPresent,
@@ -35,7 +35,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       ShadowDomStrategy,
       ViewPool,
       EventManager,
-      Reflector,
       NG_BINDING_CLASS,
       NG_BINDING_CLASS_SELECTOR,
       VIEW_POOL_CAPACITY,
@@ -67,6 +66,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       ProtoChangeDetector = $__m.ProtoChangeDetector;
       ChangeDetector = $__m.ChangeDetector;
       ChangeRecord = $__m.ChangeRecord;
+      BindingRecord = $__m.BindingRecord;
     }, function($__m) {
       ProtoElementInjector = $__m.ProtoElementInjector;
       ElementInjector = $__m.ElementInjector;
@@ -80,7 +80,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
     }, function($__m) {
       SetterFn = $__m.SetterFn;
     }, function($__m) {
-      FIELD = $__m.FIELD;
       IMPLEMENTS = $__m.IMPLEMENTS;
       int = $__m.int;
       isPresent = $__m.isPresent;
@@ -101,8 +100,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       ViewPool = $__m.ViewPool;
     }, function($__m) {
       EventManager = $__m.EventManager;
-    }, function($__m) {
-      Reflector = $__m.Reflector;
     }],
     execute: function() {
       NG_BINDING_CLASS = 'ng-binding';
@@ -110,11 +107,11 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
       VIEW_POOL_CAPACITY = 10000;
       VIEW_POOL_PREFILL = 0;
       View = $__export("View", (function() {
-        var View = function View(proto, nodes, protoChangeDetector, protoContextLocals) {
-          assert.argumentTypes(proto, ProtoView, nodes, List, protoChangeDetector, ProtoChangeDetector, protoContextLocals, Map);
+        var View = function View(proto, nodes, protoContextLocals) {
+          assert.argumentTypes(proto, ProtoView, nodes, List, protoContextLocals, Map);
           this.proto = proto;
           this.nodes = nodes;
-          this.changeDetector = protoChangeDetector.instantiate(this);
+          this.changeDetector = null;
           this.elementInjectors = null;
           this.rootElementInjectors = null;
           this.textNodes = null;
@@ -126,8 +123,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
           this.contextWithLocals = (MapWrapper.size(protoContextLocals) > 0) ? new ContextWithVariableBindings(null, MapWrapper.clone(protoContextLocals)) : null;
         };
         return ($traceurRuntime.createClass)(View, {
-          init: function(elementInjectors, rootElementInjectors, textNodes, bindElements, viewContainers, preBuiltObjects, componentChildViews) {
-            assert.argumentTypes(elementInjectors, List, rootElementInjectors, List, textNodes, List, bindElements, List, viewContainers, List, preBuiltObjects, List, componentChildViews, List);
+          init: function(changeDetector, elementInjectors, rootElementInjectors, textNodes, bindElements, viewContainers, preBuiltObjects, componentChildViews) {
+            assert.argumentTypes(changeDetector, ChangeDetector, elementInjectors, List, rootElementInjectors, List, textNodes, List, bindElements, List, viewContainers, List, preBuiltObjects, List, componentChildViews, List);
+            this.changeDetector = changeDetector;
             this.elementInjectors = elementInjectors;
             this.rootElementInjectors = rootElementInjectors;
             this.textNodes = textNodes;
@@ -289,10 +287,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
           return [new IMPLEMENTS(ChangeDispatcher)];
         }});
       Object.defineProperty(View, "parameters", {get: function() {
-          return [[ProtoView], [List], [ProtoChangeDetector], [Map]];
+          return [[ProtoView], [List], [Map]];
         }});
       Object.defineProperty(View.prototype.init, "parameters", {get: function() {
-          return [[List], [List], [List], [List], [List], [List], [List]];
+          return [[ChangeDetector], [List], [List], [List], [List], [List], [List], [List]];
         }});
       Object.defineProperty(View.prototype.setLocal, "parameters", {get: function() {
           return [[assert.type.string], []];
@@ -335,23 +333,24 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
           this._viewPool = new ViewPool(VIEW_POOL_CAPACITY);
           this.stylePromises = [];
           this.eventHandlers = [];
+          this.bindingRecords = [];
         };
         return ($traceurRuntime.createClass)(ProtoView, {
-          instantiate: function(hostElementInjector, eventManager, reflector) {
-            assert.argumentTypes(hostElementInjector, ElementInjector, eventManager, EventManager, reflector, Reflector);
+          instantiate: function(hostElementInjector, eventManager) {
+            assert.argumentTypes(hostElementInjector, ElementInjector, eventManager, EventManager);
             if (this._viewPool.length() == 0)
-              this._preFillPool(hostElementInjector, eventManager, reflector);
+              this._preFillPool(hostElementInjector, eventManager);
             var view = this._viewPool.pop();
-            return assert.returnType((isPresent(view) ? view : this._instantiate(hostElementInjector, eventManager, reflector)), View);
+            return assert.returnType((isPresent(view) ? view : this._instantiate(hostElementInjector, eventManager)), View);
           },
-          _preFillPool: function(hostElementInjector, eventManager, reflector) {
-            assert.argumentTypes(hostElementInjector, ElementInjector, eventManager, EventManager, reflector, Reflector);
+          _preFillPool: function(hostElementInjector, eventManager) {
+            assert.argumentTypes(hostElementInjector, ElementInjector, eventManager, EventManager);
             for (var i = 0; i < VIEW_POOL_PREFILL; i++) {
-              this._viewPool.push(this._instantiate(hostElementInjector, eventManager, reflector));
+              this._viewPool.push(this._instantiate(hostElementInjector, eventManager));
             }
           },
-          _instantiate: function(hostElementInjector, eventManager, reflector) {
-            assert.argumentTypes(hostElementInjector, ElementInjector, eventManager, EventManager, reflector, Reflector);
+          _instantiate: function(hostElementInjector, eventManager) {
+            assert.argumentTypes(hostElementInjector, ElementInjector, eventManager, EventManager);
             var rootElementClone = this.instantiateInPlace ? this.element : DOM.importIntoDoc(this.element);
             var elementsWithBindingsDynamic;
             if (this.isTemplateElement) {
@@ -374,7 +373,8 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
             } else {
               viewNodes = [rootElementClone];
             }
-            var view = new View(this, viewNodes, this.protoChangeDetector, this.protoContextLocals);
+            var view = new View(this, viewNodes, this.protoContextLocals);
+            var changeDetector = this.protoChangeDetector.instantiate(view, this.bindingRecords);
             var binders = this.elementBinders;
             var elementInjectors = ListWrapper.createFixedSize(binders.length);
             var eventHandlers = ListWrapper.createFixedSize(binders.length);
@@ -397,9 +397,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
               if (isPresent(protoElementInjector)) {
                 if (isPresent(protoElementInjector.parent)) {
                   var parentElementInjector = elementInjectors[protoElementInjector.parent.index];
-                  elementInjector = protoElementInjector.instantiate(parentElementInjector, null, reflector);
+                  elementInjector = protoElementInjector.instantiate(parentElementInjector, null);
                 } else {
-                  elementInjector = protoElementInjector.instantiate(null, hostElementInjector, reflector);
+                  elementInjector = protoElementInjector.instantiate(null, hostElementInjector);
                   ListWrapper.push(rootElementInjectors, elementInjector);
                 }
               }
@@ -422,17 +422,17 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
               var bindingPropagationConfig = null;
               if (isPresent(binder.componentDirective)) {
                 var strategy = this.shadowDomStrategy;
-                var childView = binder.nestedProtoView.instantiate(elementInjector, eventManager, reflector);
-                view.changeDetector.addChild(childView.changeDetector);
+                var childView = binder.nestedProtoView.instantiate(elementInjector, eventManager);
+                changeDetector.addChild(childView.changeDetector);
                 lightDom = strategy.constructLightDom(view, childView, element);
                 strategy.attachTemplate(element, childView);
-                bindingPropagationConfig = new BindingPropagationConfig(view.changeDetector);
+                bindingPropagationConfig = new BindingPropagationConfig(changeDetector);
                 ListWrapper.push(componentChildViews, childView);
               }
               var viewContainer = null;
               if (isPresent(binder.viewportDirective)) {
                 var destLightDom = this._directParentElementLightDom(protoElementInjector, preBuiltObjects);
-                viewContainer = new ViewContainer(view, element, binder.nestedProtoView, elementInjector, eventManager, reflector, destLightDom);
+                viewContainer = new ViewContainer(view, element, binder.nestedProtoView, elementInjector, eventManager, destLightDom);
                 ListWrapper.push(viewContainers, viewContainer);
               }
               if (isPresent(elementInjector)) {
@@ -452,7 +452,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
               }
             }
             this.eventHandlers = eventHandlers;
-            view.init(elementInjectors, rootElementInjectors, textNodes, elementsWithPropertyBindings, viewContainers, preBuiltObjects, componentChildViews);
+            view.init(changeDetector, elementInjectors, rootElementInjectors, textNodes, elementsWithPropertyBindings, viewContainers, preBuiltObjects, componentChildViews);
             return assert.returnType((view), View);
           },
           returnToPool: function(view) {
@@ -485,7 +485,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
             }
             ListWrapper.push(elBinder.textNodeIndices, indexInParent);
             var memento = this.textNodesWithBindingCount++;
-            this.protoChangeDetector.addAst(expression, memento);
+            ListWrapper.push(this.bindingRecords, new BindingRecord(expression, memento, null));
           },
           bindElementProperty: function(expression, setterName, setter) {
             assert.argumentTypes(expression, AST, setterName, assert.type.string, setter, SetterFn);
@@ -495,7 +495,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
               this.elementsWithBindingCount++;
             }
             var memento = new ElementBindingMemento(this.elementsWithBindingCount - 1, setterName, setter);
-            this.protoChangeDetector.addAst(expression, memento);
+            ListWrapper.push(this.bindingRecords, new BindingRecord(expression, memento, null));
           },
           bindEvent: function(eventName, expression) {
             var directiveIndex = arguments[2] !== (void 0) ? arguments[2] : -1;
@@ -517,7 +517,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
             assert.argumentTypes(directiveIndex, assert.type.number, expression, AST, setterName, assert.type.string, setter, SetterFn);
             var bindingMemento = new DirectiveBindingMemento(this.elementBinders.length - 1, directiveIndex, setterName, setter);
             var directiveMemento = DirectiveMemento.get(bindingMemento);
-            this.protoChangeDetector.addAst(expression, bindingMemento, directiveMemento);
+            ListWrapper.push(this.bindingRecords, new BindingRecord(expression, bindingMemento, directiveMemento));
           }
         }, {
           buildEventHandler: function(eventMap, injectorIdx) {
@@ -556,13 +556,13 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/dom/dom_adapter", "ang
           return [[], [ProtoChangeDetector], [ShadowDomStrategy]];
         }});
       Object.defineProperty(ProtoView.prototype.instantiate, "parameters", {get: function() {
-          return [[ElementInjector], [EventManager], [Reflector]];
+          return [[ElementInjector], [EventManager]];
         }});
       Object.defineProperty(ProtoView.prototype._preFillPool, "parameters", {get: function() {
-          return [[ElementInjector], [EventManager], [Reflector]];
+          return [[ElementInjector], [EventManager]];
         }});
       Object.defineProperty(ProtoView.prototype._instantiate, "parameters", {get: function() {
-          return [[ElementInjector], [EventManager], [Reflector]];
+          return [[ElementInjector], [EventManager]];
         }});
       Object.defineProperty(ProtoView.prototype.returnToPool, "parameters", {get: function() {
           return [[View]];

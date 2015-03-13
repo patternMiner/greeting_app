@@ -1,14 +1,16 @@
 System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/style_inliner", "angular2/src/core/compiler/view", "angular2/src/core/compiler/directive_metadata", "angular2/src/core/compiler/pipeline/compile_element", "angular2/src/core/compiler/xhr/xhr", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/src/facade/async", "angular2/change_detection"], function($__export) {
   "use strict";
   var assert,
-      describe,
+      AsyncTestCompleter,
       beforeEach,
-      it,
-      expect,
       ddescribe,
-      iit,
-      SpyObject,
+      describe,
       el,
+      expect,
+      iit,
+      inject,
+      it,
+      SpyObject,
       NativeShadowDomStrategy,
       EmulatedScopedShadowDomStrategy,
       EmulatedUnscopedShadowDomStrategy,
@@ -43,7 +45,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         var host = el('<div></div>');
         var nodes = el('<div>view</div>');
         var pv = new ProtoView(nodes, new DynamicProtoChangeDetector(null), null);
-        var view = pv.instantiate(null, null, null);
+        var view = pv.instantiate(null, null);
         strategy.attachTemplate(host, view);
         var shadowRoot = DOM.getShadowRoot(host);
         expect(isPresent(shadowRoot)).toBeTruthy();
@@ -83,7 +85,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         var host = el('<div><span>original content</span></div>');
         var nodes = el('<div>view</div>');
         var pv = new ProtoView(nodes, new DynamicProtoChangeDetector(null), null);
-        var view = pv.instantiate(null, null, null);
+        var view = pv.instantiate(null, null);
         strategy.attachTemplate(host, view);
         var firstChild = DOM.firstChild(host);
         expect(DOM.tagName(firstChild).toLowerCase()).toEqual('div');
@@ -108,7 +110,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         step.process(null, compileElement, null);
         expect(styleElement).toHaveText(".foo[_ngcontent-0] {\n\n}\n\n[_nghost-0] {\n\n}");
       }));
-      it('should inline @import rules', (function(done) {
+      it('should inline @import rules', inject([AsyncTestCompleter], (function(async) {
         xhr.reply('http://base/one.css', '.one {}');
         var template = el('<div><style>@import "one.css";</style></div>');
         var cmpMetadata = new DirectiveMetadata(SomeComponent, null);
@@ -124,9 +126,9 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         expect(styleElement).toHaveText('');
         parentpv.stylePromises[0].then((function(_) {
           expect(styleElement).toHaveText('.one[_ngcontent-0] {\n\n}');
-          done();
+          async.done();
         }));
-      }));
+      })));
       it('should return the same style given the same component', (function() {
         var template = el('<div><style>.foo {} :host {}</style></div>');
         var cmpMetadata = new DirectiveMetadata(SomeComponent, null);
@@ -197,7 +199,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
         var host = el('<div><span>original content</span></div>');
         var nodes = el('<div>view</div>');
         var pv = new ProtoView(nodes, new DynamicProtoChangeDetector(null), null);
-        var view = pv.instantiate(null, null, null);
+        var view = pv.instantiate(null, null);
         strategy.attachTemplate(host, view);
         var firstChild = DOM.firstChild(host);
         expect(DOM.tagName(firstChild).toLowerCase()).toEqual('div');
@@ -247,14 +249,16 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/c
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
-      describe = $__m.describe;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
-      it = $__m.it;
-      expect = $__m.expect;
       ddescribe = $__m.ddescribe;
-      iit = $__m.iit;
-      SpyObject = $__m.SpyObject;
+      describe = $__m.describe;
       el = $__m.el;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
+      it = $__m.it;
+      SpyObject = $__m.SpyObject;
     }, function($__m) {
       NativeShadowDomStrategy = $__m.NativeShadowDomStrategy;
       EmulatedScopedShadowDomStrategy = $__m.EmulatedScopedShadowDomStrategy;

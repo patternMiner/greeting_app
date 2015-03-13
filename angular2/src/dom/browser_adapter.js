@@ -25,7 +25,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
     }],
     execute: function() {
       _attrToPropMap = {
-        'inner-html': 'innerHTML',
+        'innerHtml': 'innerHTML',
         'readonly': 'readOnly',
         'tabindex': 'tabIndex'
       };

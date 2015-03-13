@@ -1,4 +1,4 @@
-System.register(["rtts_assert/rtts_assert", "./view", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/di", "angular2/src/core/compiler/element_injector", "angular2/src/core/events/event_manager", "angular2/src/reflection/reflection"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "./view", "angular2/src/dom/dom_adapter", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/di", "angular2/src/core/compiler/element_injector", "angular2/src/core/events/event_manager", "./shadow_dom_emulation/light_dom"], function($__export) {
   "use strict";
   var assert,
       viewModule,
@@ -12,7 +12,7 @@ System.register(["rtts_assert/rtts_assert", "./view", "angular2/src/dom/dom_adap
       isPresent,
       isBlank,
       EventManager,
-      Reflector,
+      ldModule,
       ViewContainer;
   return {
     setters: [function($__m) {
@@ -36,22 +36,22 @@ System.register(["rtts_assert/rtts_assert", "./view", "angular2/src/dom/dom_adap
     }, function($__m) {
       EventManager = $__m.EventManager;
     }, function($__m) {
-      Reflector = $__m.Reflector;
+      ldModule = $__m;
     }],
     execute: function() {
       ViewContainer = $__export("ViewContainer", (function() {
-        var ViewContainer = function ViewContainer(parentView, templateElement, defaultProtoView, elementInjector, eventManager, reflector) {
-          var lightDom = arguments[6] !== (void 0) ? arguments[6] : null;
-          assert.argumentTypes(parentView, viewModule.View, templateElement, assert.type.any, defaultProtoView, viewModule.ProtoView, elementInjector, eiModule.ElementInjector, eventManager, EventManager, reflector, Reflector, lightDom, assert.type.any);
+        var ViewContainer = function ViewContainer(parentView, templateElement, defaultProtoView, elementInjector, eventManager) {
+          var lightDom = arguments[5] !== (void 0) ? arguments[5] : null;
+          assert.argumentTypes(parentView, viewModule.View, templateElement, assert.type.any, defaultProtoView, viewModule.ProtoView, elementInjector, eiModule.ElementInjector, eventManager, EventManager, lightDom, assert.type.any);
           this.parentView = parentView;
           this.templateElement = templateElement;
           this.defaultProtoView = defaultProtoView;
           this.elementInjector = elementInjector;
           this._lightDom = lightDom;
-          this._reflector = reflector;
           this._views = [];
           this.appInjector = null;
           this.hostElementInjector = null;
+          this.hostLightDom = null;
           this._eventManager = eventManager;
         };
         return ($traceurRuntime.createClass)(ViewContainer, {
@@ -59,10 +59,12 @@ System.register(["rtts_assert/rtts_assert", "./view", "angular2/src/dom/dom_adap
             assert.argumentTypes(appInjector, Injector, hostElementInjector, eiModule.ElementInjector);
             this.appInjector = appInjector;
             this.hostElementInjector = hostElementInjector;
+            this.hostLightDom = isPresent(hostElementInjector) ? hostElementInjector.get(ldModule.LightDom) : null;
           },
           dehydrate: function() {
             this.appInjector = null;
             this.hostElementInjector = null;
+            this.hostLightDom = null;
             this.clear();
           },
           clear: function() {
@@ -90,9 +92,12 @@ System.register(["rtts_assert/rtts_assert", "./view", "angular2/src/dom/dom_adap
             var atIndex = arguments[0] !== (void 0) ? arguments[0] : -1;
             if (!this.hydrated())
               throw new BaseException('Cannot create views on a dehydrated ViewContainer');
-            var newView = this.defaultProtoView.instantiate(this.hostElementInjector, this._eventManager, this._reflector);
+            var newView = this.defaultProtoView.instantiate(this.hostElementInjector, this._eventManager);
             this.insert(newView, atIndex);
             newView.hydrate(this.appInjector, this.hostElementInjector, this.parentView.context);
+            if (isPresent(this.hostLightDom)) {
+              this.hostLightDom.redistribute();
+            }
             return assert.returnType((newView), viewModule.View);
           },
           insert: function(view) {
@@ -127,6 +132,9 @@ System.register(["rtts_assert/rtts_assert", "./view", "angular2/src/dom/dom_adap
               ViewContainer.removeViewNodesFromParent(this.templateElement.parentNode, detachedView);
             } else {
               this._lightDom.redistribute();
+            }
+            if (isPresent(this.hostLightDom)) {
+              this.hostLightDom.redistribute();
             }
             detachedView.changeDetector.remove();
             this._unlinkElementInjectors(detachedView);
@@ -166,7 +174,7 @@ System.register(["rtts_assert/rtts_assert", "./view", "angular2/src/dom/dom_adap
         });
       }()));
       Object.defineProperty(ViewContainer, "parameters", {get: function() {
-          return [[viewModule.View], [], [viewModule.ProtoView], [eiModule.ElementInjector], [EventManager], [Reflector], []];
+          return [[viewModule.View], [], [viewModule.ProtoView], [eiModule.ElementInjector], [EventManager], []];
         }});
       Object.defineProperty(ViewContainer.prototype.hydrate, "parameters", {get: function() {
           return [[Injector], [eiModule.ElementInjector]];

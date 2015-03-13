@@ -8,7 +8,7 @@ import {RedDec} from '../directives/red_dec';
 })
 @Template({
   url: `greeting_app/components/greeting_app.html`,
-  directives: [RedDec]
+  directives: [RedDec, FooBar]
 })
 export class GreetingApp {
   greeting: string;
@@ -26,6 +26,23 @@ export class GreetingApp {
   }
 
   changeName(newName: string) {
-  this.name = newName == '' ? 'World' : newName;
+    this.name = newName == '' ? 'World' : newName;
   }
+}
+
+@Component({
+  selector: 'foo-bar',
+  bind: {
+    'first-name': 'firstName'
+  }
+})
+@Template({
+  inline: `<div>{{firstName}}</div>`
+})
+export class FooBar {
+  _firstName: string;
+
+  get firstName(): string {return this._firstName}
+
+  set firstName(name: string) {this._firstName = name;}
 }

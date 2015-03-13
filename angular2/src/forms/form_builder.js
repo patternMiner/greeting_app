@@ -1,13 +1,10 @@
-System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/forms"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "angular2/src/facade/lang", "./model"], function($__export) {
   "use strict";
   var assert,
       StringMapWrapper,
       ListWrapper,
       isPresent,
-      ControlGroup,
-      Control,
-      OptionalControl,
-      OptionalControlGroup,
+      modelModule,
       FormBuilder;
   return {
     setters: [function($__m) {
@@ -18,10 +15,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
     }, function($__m) {
       isPresent = $__m.isPresent;
     }, function($__m) {
-      ControlGroup = $__m.ControlGroup;
-      Control = $__m.Control;
-      OptionalControl = $__m.OptionalControl;
-      OptionalControlGroup = $__m.OptionalControlGroup;
+      modelModule = $__m;
     }],
     execute: function() {
       FormBuilder = $__export("FormBuilder", (function() {
@@ -33,18 +27,18 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
             var optionals = isPresent(extra) ? StringMapWrapper.get(extra, "optionals") : null;
             var validator = isPresent(extra) ? StringMapWrapper.get(extra, "validator") : null;
             if (isPresent(validator)) {
-              return assert.returnType((new ControlGroup(controls, optionals, validator)), ControlGroup);
+              return assert.returnType((new modelModule.ControlGroup(controls, optionals, validator)), modelModule.ControlGroup);
             } else {
-              return assert.returnType((new ControlGroup(controls, optionals)), ControlGroup);
+              return assert.returnType((new modelModule.ControlGroup(controls, optionals)), modelModule.ControlGroup);
             }
           },
           control: function(value) {
             var validator = arguments[1] !== (void 0) ? arguments[1] : null;
             assert.argumentTypes(value, assert.type.any, validator, Function);
             if (isPresent(validator)) {
-              return assert.returnType((new Control(value, validator)), Control);
+              return assert.returnType((new modelModule.Control(value, validator)), modelModule.Control);
             } else {
-              return assert.returnType((new Control(value)), Control);
+              return assert.returnType((new modelModule.Control(value)), modelModule.Control);
             }
           },
           _reduceControls: function(controlsConfig) {
@@ -56,7 +50,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/collection", "a
             return controls;
           },
           _createControl: function(controlConfig) {
-            if (controlConfig instanceof Control || controlConfig instanceof ControlGroup) {
+            if (controlConfig instanceof modelModule.Control || controlConfig instanceof modelModule.ControlGroup) {
               return controlConfig;
             } else if (ListWrapper.isList(controlConfig)) {
               var value = ListWrapper.get(controlConfig, 0);

@@ -1,7 +1,6 @@
 System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular2/src/facade/collection", "./context_with_variable_bindings"], function($__export) {
   "use strict";
   var assert,
-      FIELD,
       autoConvertAdd,
       isBlank,
       isPresent,
@@ -46,7 +45,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/src/facade/lang", "angular
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
-      FIELD = $__m.FIELD;
       autoConvertAdd = $__m.autoConvertAdd;
       isBlank = $__m.isBlank;
       isPresent = $__m.isPresent;

@@ -1,15 +1,17 @@
-System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/di", "angular2/change_detection", "angular2/src/core/exception_handler", "angular2/src/core/compiler/compiler", "angular2/src/core/life_cycle/life_cycle", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/style_inliner", "angular2/src/core/compiler/css_processor", "angular2/src/mock/template_resolver_mock", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/compiler/view_container", "angular2/src/dom/browser_adapter", "angular2/src/reflection/reflection"], function($__export) {
+System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/di", "angular2/change_detection", "angular2/src/core/exception_handler", "angular2/src/core/compiler/compiler", "angular2/src/core/life_cycle/life_cycle", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/template_loader", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/style_inliner", "angular2/src/core/compiler/css_processor", "angular2/src/mock/template_resolver_mock", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/src/core/compiler/view_container", "angular2/src/dom/browser_adapter"], function($__export) {
   "use strict";
   var assert,
-      describe,
-      xit,
-      it,
-      expect,
+      AsyncTestCompleter,
       beforeEach,
       ddescribe,
-      iit,
+      describe,
       el,
+      expect,
+      iit,
+      inject,
       IS_NODEJS,
+      it,
+      xit,
       StringMapWrapper,
       List,
       Type,
@@ -41,7 +43,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       Template,
       ViewContainer,
       BrowserDomAdapter,
-      reflector,
       TestDirectiveMetadataReader,
       ManualViewportDirective,
       AutoViewportDirective,
@@ -88,21 +89,21 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
           Object.defineProperty(compile, "parameters", {get: function() {
               return [[], [assert.genericType(List, Type)], []];
             }});
-          it('should support multiple content tags', (function(done) {
+          it('should support multiple content tags', inject([AsyncTestCompleter], (function(async) {
             var temp = '<multiple-content-tags>' + '<div>B</div>' + '<div>C</div>' + '<div class="left">A</div>' + '</multiple-content-tags>';
             compile(temp, [MultipleContentTagsComponent], (function(view, lc) {
               expect(view.nodes).toHaveText('(A, BC)');
-              done();
+              async.done();
             }));
-          }));
-          it('should redistribute only direct children', (function(done) {
+          })));
+          it('should redistribute only direct children', inject([AsyncTestCompleter], (function(async) {
             var temp = '<multiple-content-tags>' + '<div>B<div class="left">A</div></div>' + '<div>C</div>' + '</multiple-content-tags>';
             compile(temp, [MultipleContentTagsComponent], (function(view, lc) {
               expect(view.nodes).toHaveText('(, BAC)');
-              done();
+              async.done();
             }));
-          }));
-          it("should redistribute direct child viewcontainers when the light dom changes", (function(done) {
+          })));
+          it("should redistribute direct child viewcontainers when the light dom changes", inject([AsyncTestCompleter], (function(async) {
             var temp = '<multiple-content-tags>' + '<div><div template="manual" class="left">A</div></div>' + '<div>B</div>' + '</multiple-content-tags>';
             compile(temp, [MultipleContentTagsComponent, ManualViewportDirective], (function(view, lc) {
               var dir = view.elementInjectors[1].get(ManualViewportDirective);
@@ -113,10 +114,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
               dir.hide();
               lc.tick();
               expect(view.nodes).toHaveText('(, B)');
-              done();
+              async.done();
             }));
-          }));
-          it("should redistribute when the light dom changes", (function(done) {
+          })));
+          it("should redistribute when the light dom changes", inject([AsyncTestCompleter], (function(async) {
             var temp = '<multiple-content-tags>' + '<div template="manual" class="left">A</div>' + '<div>B</div>' + '</multiple-content-tags>';
             compile(temp, [MultipleContentTagsComponent, ManualViewportDirective], (function(view, lc) {
               var dir = view.elementInjectors[1].get(ManualViewportDirective);
@@ -127,17 +128,17 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
               dir.hide();
               lc.tick();
               expect(view.nodes).toHaveText('(, B)');
-              done();
+              async.done();
             }));
-          }));
-          it("should support nested components", (function(done) {
+          })));
+          it("should support nested components", inject([AsyncTestCompleter], (function(async) {
             var temp = '<outer-with-indirect-nested>' + '<div>A</div>' + '<div>B</div>' + '</outer-with-indirect-nested>';
             compile(temp, [OuterWithIndirectNestedComponent], (function(view, lc) {
               expect(view.nodes).toHaveText('OUTER(SIMPLE(AB))');
-              done();
+              async.done();
             }));
-          }));
-          it("should support nesting with content being direct child of a nested component", (function(done) {
+          })));
+          it("should support nesting with content being direct child of a nested component", inject([AsyncTestCompleter], (function(async) {
             var temp = '<outer>' + '<div template="manual" class="left">A</div>' + '<div>B</div>' + '<div>C</div>' + '</outer>';
             compile(temp, [OuterComponent, ManualViewportDirective], (function(view, lc) {
               var dir = view.elementInjectors[1].get(ManualViewportDirective);
@@ -145,15 +146,29 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
               dir.show();
               lc.tick();
               expect(view.nodes).toHaveText('OUTER(INNER(INNERINNER(A,BC)))');
-              done();
+              async.done();
             }));
-          }));
+          })));
+          it('should redistribute when the shadow dom changes', inject([AsyncTestCompleter], (function(async) {
+            var temp = '<conditional-content>' + '<div class="left">A</div>' + '<div>B</div>' + '<div>C</div>' + '</conditional-content>';
+            compile(temp, [ConditionalContentComponent, AutoViewportDirective], (function(view, lc) {
+              var cmp = view.elementInjectors[0].get(ConditionalContentComponent);
+              expect(view.nodes).toHaveText('(, ABC)');
+              cmp.showLeft();
+              lc.tick();
+              expect(view.nodes).toHaveText('(A, BC)');
+              cmp.hideLeft();
+              lc.tick();
+              expect(view.nodes).toHaveText('(, ABC)');
+              async.done();
+            }));
+          })));
         }));
       }));
     });
   }
   function createView(pv) {
-    var view = pv.instantiate(null, null, reflector);
+    var view = pv.instantiate(null, null);
     view.hydrate(new Injector([]), null, {});
     return view;
   }
@@ -162,15 +177,17 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
-      describe = $__m.describe;
-      xit = $__m.xit;
-      it = $__m.it;
-      expect = $__m.expect;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
       ddescribe = $__m.ddescribe;
-      iit = $__m.iit;
+      describe = $__m.describe;
       el = $__m.el;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
       IS_NODEJS = $__m.IS_NODEJS;
+      it = $__m.it;
+      xit = $__m.xit;
     }, function($__m) {
       StringMapWrapper = $__m.StringMapWrapper;
       List = $__m.List;
@@ -223,8 +240,6 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       ViewContainer = $__m.ViewContainer;
     }, function($__m) {
       BrowserDomAdapter = $__m.BrowserDomAdapter;
-    }, function($__m) {
-      reflector = $__m.reflector;
     }],
     execute: function() {
       TestDirectiveMetadataReader = (function($__super) {
@@ -315,7 +330,7 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/src/f
       }());
       Object.defineProperty(ConditionalContentComponent, "annotations", {get: function() {
           return [new Component({selector: 'conditional-content'}), new Template({
-            inline: '<div>(<div template="auto: cond"><content select=".left"></content></div>, <content></content>)</div>',
+            inline: '<div>(<div *auto="cond"><content select=".left"></content></div>, <content></content>)</div>',
             directives: [AutoViewportDirective]
           })];
         }});

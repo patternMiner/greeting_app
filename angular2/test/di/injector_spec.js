@@ -166,6 +166,10 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di"],
         isBroken = false;
         expect(injector.get(Car)).toBeAnInstanceOf(Car);
       });
+      it('should support null values', (function() {
+        var injector = new Injector([bind('null').toValue(null)]);
+        expect(injector.get('null')).toBe(null);
+      }));
       describe("default bindings", function() {
         it("should be used when no matching binding found", function() {
           var injector = new Injector([], {defaultBindings: true});

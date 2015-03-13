@@ -1,13 +1,15 @@
 System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di", "angular2/src/facade/async"], function($__export) {
   "use strict";
   var assert,
+      AsyncTestCompleter,
+      beforeEach,
       ddescribe,
       describe,
-      it,
-      iit,
-      xit,
       expect,
-      beforeEach,
+      iit,
+      inject,
+      it,
+      xit,
       Injector,
       Inject,
       InjectPromise,
@@ -40,32 +42,32 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di", 
           expect(injector.get(UserList)).toBeAnInstanceOf(UserList);
           expect(injector.asyncGet(UserList)).toBePromise();
         });
-        it('should return the injector', function(done) {
+        it('should return the injector', inject([AsyncTestCompleter], (function(async) {
           var injector = new Injector([]);
           var p = injector.asyncGet(Injector);
           p.then(function(injector) {
             expect(injector).toBe(injector);
-            done();
+            async.done();
           });
-        });
-        it('should return a promise when instantiating a sync binding ' + 'with an async dependency', function(done) {
+        })));
+        it('should return a promise when instantiating a sync binding ' + 'with an async dependency', inject([AsyncTestCompleter], (function(async) {
           var injector = new Injector([bind(UserList).toAsyncFactory(fetchUsers), UserController]);
           injector.asyncGet(UserController).then(function(userController) {
             expect(userController).toBeAnInstanceOf(UserController);
             expect(userController.list).toBeAnInstanceOf(UserList);
-            done();
+            async.done();
           });
-        });
-        it("should create only one instance (async + async)", function(done) {
+        })));
+        it("should create only one instance (async + async)", inject([AsyncTestCompleter], (function(async) {
           var injector = new Injector([bind(UserList).toAsyncFactory(fetchUsers)]);
           var ul1 = injector.asyncGet(UserList);
           var ul2 = injector.asyncGet(UserList);
           PromiseWrapper.all([ul1, ul2]).then(function(uls) {
             expect(uls[0]).toBe(uls[1]);
-            done();
+            async.done();
           });
-        });
-        it("should create only one instance (sync + async)", function(done) {
+        })));
+        it("should create only one instance (sync + async)", inject([AsyncTestCompleter], (function(async) {
           var injector = new Injector([UserList]);
           var promise = injector.asyncGet(UserList);
           var ul = injector.get(UserList);
@@ -73,19 +75,19 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di", 
           expect(ul).toBeAnInstanceOf(UserList);
           promise.then(function(ful) {
             expect(ful).toBe(ul);
-            done();
+            async.done();
           });
-        });
-        it('should show the full path when error happens in a constructor', function(done) {
+        })));
+        it('should show the full path when error happens in a constructor', inject([AsyncTestCompleter], (function(async) {
           var injector = new Injector([UserController, bind(UserList).toAsyncFactory(function() {
             throw "Broken UserList";
           })]);
           var promise = injector.asyncGet(UserController);
           PromiseWrapper.then(promise, null, function(e) {
             expect(e.message).toContain("Error during instantiation of UserList! (UserController -> UserList)");
-            done();
+            async.done();
           });
-        });
+        })));
       });
       describe("get", function() {
         it('should throw when instantiating an async binding', function() {
@@ -122,13 +124,15 @@ System.register(["rtts_assert/rtts_assert", "angular2/test_lib", "angular2/di", 
     setters: [function($__m) {
       assert = $__m.assert;
     }, function($__m) {
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
+      beforeEach = $__m.beforeEach;
       ddescribe = $__m.ddescribe;
       describe = $__m.describe;
-      it = $__m.it;
-      iit = $__m.iit;
-      xit = $__m.xit;
       expect = $__m.expect;
-      beforeEach = $__m.beforeEach;
+      iit = $__m.iit;
+      inject = $__m.inject;
+      it = $__m.it;
+      xit = $__m.xit;
     }, function($__m) {
       Injector = $__m.Injector;
       Inject = $__m.Inject;

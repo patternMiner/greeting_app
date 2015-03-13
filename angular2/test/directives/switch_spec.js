@@ -1,13 +1,15 @@
 System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/di", "angular2/change_detection", "angular2/src/core/compiler/compiler", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/compiler/shadow_dom_strategy", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/url_resolver", "angular2/src/core/compiler/style_url_resolver", "angular2/src/core/compiler/css_processor", "angular2/src/core/annotations/annotations", "angular2/src/core/annotations/template", "angular2/core", "angular2/src/directives/switch", "angular2/src/mock/template_resolver_mock"], function($__export) {
   "use strict";
-  var describe,
-      xit,
-      it,
-      expect,
+  var AsyncTestCompleter,
       beforeEach,
       ddescribe,
-      iit,
+      describe,
       el,
+      expect,
+      iit,
+      inject,
+      it,
+      xit,
       DOM,
       Injector,
       Lexer,
@@ -43,7 +45,7 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
       }));
       function createView(pv) {
         component = new TestComponent();
-        view = pv.instantiate(null, null, null);
+        view = pv.instantiate(null, null);
         view.hydrate(new Injector([]), null, component);
         cd = view.changeDetector;
       }
@@ -56,7 +58,7 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
         return compiler.compile(TestComponent);
       }
       describe('switch value changes', (function() {
-        it('should switch amongst when values', (function(done) {
+        it('should switch amongst when values', inject([AsyncTestCompleter], (function(async) {
           var template = '<div>' + '<ul [switch]="switchValue">' + '<template [switch-when]="\'a\'"><li>when a</li></template>' + '<template [switch-when]="\'b\'"><li>when b</li></template>' + '</ul></div>';
           compileWithTemplate(template).then((function(pv) {
             createView(pv);
@@ -68,10 +70,10 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
             component.switchValue = 'b';
             cd.detectChanges();
             expect(DOM.getText(view.nodes[0])).toEqual('when b');
-            done();
+            async.done();
           }));
-        }));
-        it('should switch amongst when values with fallback to default', (function(done) {
+        })));
+        it('should switch amongst when values with fallback to default', inject([AsyncTestCompleter], (function(async) {
           var template = '<div>' + '<ul [switch]="switchValue">' + '<li template="switch-when \'a\'">when a</li>' + '<li template="switch-default">when default</li>' + '</ul></div>';
           compileWithTemplate(template).then((function(pv) {
             createView(pv);
@@ -83,10 +85,10 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
             component.switchValue = 'b';
             cd.detectChanges();
             expect(DOM.getText(view.nodes[0])).toEqual('when default');
-            done();
+            async.done();
           }));
-        }));
-        it('should support multiple whens with the same value', (function(done) {
+        })));
+        it('should support multiple whens with the same value', inject([AsyncTestCompleter], (function(async) {
           var template = '<div>' + '<ul [switch]="switchValue">' + '<template [switch-when]="\'a\'"><li>when a1;</li></template>' + '<template [switch-when]="\'b\'"><li>when b1;</li></template>' + '<template [switch-when]="\'a\'"><li>when a2;</li></template>' + '<template [switch-when]="\'b\'"><li>when b2;</li></template>' + '<template [switch-default]><li>when default1;</li></template>' + '<template [switch-default]><li>when default2;</li></template>' + '</ul></div>';
           compileWithTemplate(template).then((function(pv) {
             createView(pv);
@@ -98,12 +100,12 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
             component.switchValue = 'b';
             cd.detectChanges();
             expect(DOM.getText(view.nodes[0])).toEqual('when b1;when b2;');
-            done();
+            async.done();
           }));
-        }));
+        })));
       }));
       describe('when values changes', (function() {
-        it('should switch amongst when values', (function(done) {
+        it('should switch amongst when values', inject([AsyncTestCompleter], (function(async) {
           var template = '<div>' + '<ul [switch]="switchValue">' + '<template [switch-when]="when1"><li>when 1;</li></template>' + '<template [switch-when]="when2"><li>when 2;</li></template>' + '<template [switch-default]><li>when default;</li></template>' + '</ul></div>';
           compileWithTemplate(template).then((function(pv) {
             createView(pv);
@@ -124,23 +126,25 @@ System.register(["angular2/test_lib", "angular2/src/dom/dom_adapter", "angular2/
             component.when1 = 'd';
             cd.detectChanges();
             expect(DOM.getText(view.nodes[0])).toEqual('when default;');
-            done();
+            async.done();
           }));
-        }));
+        })));
       }));
     }));
   }
   $__export("main", main);
   return {
     setters: [function($__m) {
-      describe = $__m.describe;
-      xit = $__m.xit;
-      it = $__m.it;
-      expect = $__m.expect;
+      AsyncTestCompleter = $__m.AsyncTestCompleter;
       beforeEach = $__m.beforeEach;
       ddescribe = $__m.ddescribe;
-      iit = $__m.iit;
+      describe = $__m.describe;
       el = $__m.el;
+      expect = $__m.expect;
+      iit = $__m.iit;
+      inject = $__m.inject;
+      it = $__m.it;
+      xit = $__m.xit;
     }, function($__m) {
       DOM = $__m.DOM;
     }, function($__m) {
